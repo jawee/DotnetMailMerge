@@ -16,9 +16,26 @@ public class LexerTests
     public void TestLexer() 
     {
         var testCases = new[] {
-            new TestCase("{", new[] { CreateToken(TokenType.Start, "{") }),
-            new TestCase("}", new[] { CreateToken(TokenType.End, "}") }),
-            new TestCase("{}", new[] { CreateToken(TokenType.Start, "{"), CreateToken(TokenType.End, "}")})
+            new TestCase("{", new[] { CreateToken(TokenType.Illegal) }),
+            new TestCase("}", new[] { CreateToken(TokenType.Illegal) }),
+            new TestCase("{{", new[] { CreateToken(TokenType.Start, "{{"), CreateToken(TokenType.EOF)}),
+            new TestCase("}}", new[] { CreateToken(TokenType.End, "}}"), CreateToken(TokenType.EOF)}),
+            new TestCase("{{p}}", new[] {
+                CreateToken(TokenType.Start, "{{"),
+                CreateToken(TokenType.Character, "p"),
+                CreateToken(TokenType.End, "}}"),
+                CreateToken(TokenType.EOF),
+            }),
+            new TestCase("{{#if p}}", new[] {
+                CreateToken(TokenType.Start, "{{"),
+                CreateToken(TokenType.Character, "#"),
+                CreateToken(TokenType.Character, "i"),
+                CreateToken(TokenType.Character, "f"),
+                CreateToken(TokenType.Character, " "),
+                CreateToken(TokenType.Character, "p"),
+                CreateToken(TokenType.End, "}}"),
+                CreateToken(TokenType.EOF),
+            }),
         };
 
         foreach (var testCase in testCases)
@@ -29,8 +46,8 @@ public class LexerTests
                 var token = lexer.GetNextToken();
                 Assert.Multiple(() =>
                 {
-                    Assert.That(token.Literal, Is.EqualTo(expected.Literal),"Expected '{0}', got '{1}'", expected.Literal, token.Literal);
-                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), "Expected '{0}, got '{1}'", expected.TokenType, token.TokenType);
+                    Assert.That(token.Literal, Is.EqualTo(expected.Literal),"TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal);
+                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), "TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType);
                 });
             }
         }

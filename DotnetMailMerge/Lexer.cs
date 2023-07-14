@@ -17,9 +17,10 @@ public class Lexer
 	{
         var res = _currentChar switch
         {
-            '{' => new Token(TokenType.Start, "{"),
-			'}' => new Token(TokenType.End, "}"),
-            _ => new Token(TokenType.Illegal),
+            '{' => ReadStart(),
+			'}' => ReadEnd(),
+            null => new Token(TokenType.EOF),
+			_ => new Token(TokenType.Character, $"{_currentChar}"),
         };
 
 
@@ -27,9 +28,28 @@ public class Lexer
 		return res;
     }
 
-	private Token? PeekNextToken()
-	{
-		return null;
+	private Token ReadEnd() 
+    { 
+		ReadNextChar();
+		var res = _currentChar switch
+		{
+			'}' => new Token(TokenType.End, "}}"),
+			_ => new Token(TokenType.Illegal),
+		};
+
+		return res;
+    }
+
+	private Token ReadStart() 
+    {
+		ReadNextChar();
+		var res = _currentChar switch
+		{
+			'{' => new Token(TokenType.Start, "{{"),
+			_ => new Token(TokenType.Illegal),
+		};
+
+		return res;
     }
 
 	private void ReadNextChar()
@@ -55,8 +75,6 @@ public enum TokenType
 	Character,
 	Start,
 	End,
-	StartIf,
-	EndIf,
 	EOF,
 	Illegal,
 }
