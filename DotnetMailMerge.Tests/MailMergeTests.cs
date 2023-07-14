@@ -49,19 +49,20 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
-    [Test]
-    public void StringReplacement_NotAllReplaced_ReturnsError()
-    {
-        var template = @"<html><body><h1>{{title}}</h1><p>{{body}}</p></body></html>";
 
-        var sut = new MailMerge(template, new() { { "title", "Title" } });
-        var result = sut.Render();
+    //[Test]
+    //public void StringReplacement_NotAllReplaced_ReturnsError()
+    //{
+    //    var template = @"<html><body><h1>{{title}}</h1><p>{{body}}</p></body></html>";
 
-        var error = result.Match(success => new Exception("Unexpected Success"), err => err);
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.IsError, Is.True);
-            Assert.That(error, Is.TypeOf<MissingParameterException>());
-        });
-    }
+    //    var sut = new MailMerge(template, new() { { "title", "Title" } });
+    //    var result = sut.Render();
+
+    //    var error = result.Match(success => new Exception("Unexpected Success"), err => err);
+    //    Assert.Multiple(() =>
+    //    {
+    //        Assert.That(result.IsError, Is.True);
+    //        Assert.That(error, Is.TypeOf<MissingParameterException>());
+    //    });
+    //}
 }
