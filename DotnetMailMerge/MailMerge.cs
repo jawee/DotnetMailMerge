@@ -1,13 +1,13 @@
-﻿namespace DotnetMailMerge;
+﻿using DotnetMailMerge.Exceptions;
+
+namespace DotnetMailMerge;
 
 public class MailMerge
 {
-    private string _template;
     private readonly Dictionary<string, object> _parameters;
     private readonly Parser _parser;
     public MailMerge(string template, Dictionary<string, object> parameters)
     {
-        _template = template;
         _parameters = parameters;
         var lexer = new Lexer(template);
         _parser = new Parser(lexer);
@@ -20,35 +20,55 @@ public class MailMerge
         var res = "";
         foreach (var block in ast.Blocks)
         {
-            res += block switch
+            var result = block switch
             {
                 IfBlock => HandleIfBlock(block),
                 TextBlock => HandleTextBlock(block),
                 ReplaceBlock => HandleReplaceBlock(block),
                 _ => throw new NotImplementedException("unknown block")
             };
-            
+
+            if (result.IsError)
+            {
+                return result.GetError();
+            }
+
+            res += result.GetValue();
         }
 
         return res;
     }
 
-    private string HandleReplaceBlock(Block block)
+    private Result<string> HandleReplaceBlock(Block block)
     {
         var b = block as ReplaceBlock;
+        if (b is null)
+        {
+            return new UnknownBlockException("Block isn't ReplaceBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.Property))
+        {
+            return new MissingParameterException($"Paramaeters doesn't contain {b.Property}");
+        }
         var res = _parameters[b.Property];
+
+        if (res is null)
+        { 
+            return new MissingParameterException($"Paramaeters doesn't contain {b.Property}");
+        }
 
         return res.ToString();
     }
 
-    private string HandleTextBlock(Block block)
+    private Result<string> HandleTextBlock(Block block)
     {
         var b = block as TextBlock;
 
         return b.Text;
     }
 
-    private string HandleIfBlock(Block block)
+    private Result<string> HandleIfBlock(Block block)
     {
         throw new NotImplementedException();
     }
