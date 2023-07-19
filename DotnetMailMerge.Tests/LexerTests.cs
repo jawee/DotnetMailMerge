@@ -36,6 +36,20 @@ public class LexerTests
                 CreateToken(TokenType.End, "}}"),
                 CreateToken(TokenType.EOF),
             }),
+            new TestCase("<p>{{ p }}</p>", new[] {
+                CreateToken(TokenType.Character, "<"),
+                CreateToken(TokenType.Character, "p"),
+                CreateToken(TokenType.Character, ">"),
+                CreateToken(TokenType.Start, "{{"),
+                CreateToken(TokenType.Character, " "),
+                CreateToken(TokenType.Character, "p"),
+                CreateToken(TokenType.Character, " "),
+                CreateToken(TokenType.End, "}}"),
+                CreateToken(TokenType.Character, "<"),
+                CreateToken(TokenType.Character, "/"),
+                CreateToken(TokenType.Character, "p"),
+                CreateToken(TokenType.Character, ">"),
+            }),
         };
 
         foreach (var testCase in testCases)
