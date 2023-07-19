@@ -143,26 +143,84 @@ public class ParserTests
         Assert.That(ifBlock.Consequence, Has.Count.EqualTo(0));
     }
 
-    //[Test]
-    //public void TestParseIfBlockWithTextConsequence()
-    //{
-    //    var input = "{{#if somebool }}Lorem ipsum{{/if}}";
-    //    var lexer = new Lexer(input);
-    //    var parser = new Parser(lexer);
-    //    var ast = parser.Parse();
+    [Test]
+    public void TestParseIfBlockWithTextConsequence()
+    {
+        var input = "{{#if somebool }}Lorem ipsum{{/if}}";
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var ast = parser.Parse();
 
-    //    if (ast.Blocks.Count != 1)
-    //    {
-    //        Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
-    //    }
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
 
-    //    var ifBlock = ast.Blocks.First() as IfBlock;
+        var ifBlock = ast.Blocks.First() as IfBlock;
 
-    //    Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-    //    Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-    //    Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
-    //    var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
-    //    Assert.That(consequenceBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-    //    Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
-    //}
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+    }
+
+    [Test]
+    public void TestParseNestedIf()
+    {
+        var input = "{{#if somebool }}{{#if otherbool}}Lorem ipsum{{/if}}{{/if}}";
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var ast = parser.Parse();
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var ifBlock = ast.Blocks.First() as IfBlock;
+
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        var consequenceBlock = ifBlock.Consequence.First() as IfBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ifBlock.Consequence.First().GetType());
+        Assert.That(consequenceBlock.Condition, Is.EqualTo("otherbool"));
+        Assert.That(consequenceBlock.Consequence, Has.Count.EqualTo(1));
+        var consequence = consequenceBlock.Consequence.First() as TextBlock;
+        Assert.That(consequence, Is.Not.Null, "Expected 'TextBlock', got '{0}'", consequenceBlock.Consequence.First().GetType());
+        Assert.That(consequence.Text, Is.EqualTo("Lorem ipsum"));
+    }
+
+    [Test]
+    public void TestParseIfBlockWithTextAndReplaceBlockConsequence()
+    {
+        var expectedConsequence = new List<Block>
+        {
+            new TextBlock { Text = "<p>"},
+            new ReplaceBlock { Property = "p"},
+            new TextBlock { Text = "</p>"},
+        };
+        var input = "{{#if somebool }}<p>{{ p }}</p>{{/if}}";
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var ast = parser.Parse();
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var ifBlock = ast.Blocks.First() as IfBlock;
+
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+
+        for (var i = 0; i < expectedConsequence.Count; ++i)
+        {
+            Assert.That(ifBlock.Consequence[i], Is.EqualTo(expectedConsequence[i]));
+        }
+    }
 }

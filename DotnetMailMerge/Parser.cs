@@ -61,7 +61,19 @@ public class Parser
     private List<Block> ParseConsequence()
     {
         NextToken();
-        return new();
+        var blocks = new List<Block>();
+
+        while (!(_curToken.TokenType == TokenType.Start && _peekToken.Literal == "/"))
+        {
+            var block = ParseBlock();
+            if (block is not null)
+            {
+                blocks.Add(block);
+            }
+            //NextToken();
+        }
+
+        return blocks;
     }
 
     private Block? ParseIf()
