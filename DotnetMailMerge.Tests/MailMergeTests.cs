@@ -96,4 +96,20 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
+    [Test]
+    public void If_Nested()
+    {
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{#if shownested}}<p>Nested</p>{{/if}}{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p><p>Nested</p></body></html>"; 
+
+        var sut = new MailMerge(template, new() { 
+            { "title", "Title" },
+            { "show", true },
+            { "shownested", true },
+         });
+        var result = sut.Render();
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
 }
