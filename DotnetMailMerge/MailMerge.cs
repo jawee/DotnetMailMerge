@@ -49,13 +49,13 @@ public class MailMerge
 
         if (!_parameters.ContainsKey(b.Property))
         {
-            return new MissingParameterException($"Paramaeters doesn't contain {b.Property}");
+            return new MissingParameterException($"Parameters doesn't contain {b.Property}");
         }
         var res = _parameters[b.Property];
 
         if (res is null)
         { 
-            return new MissingParameterException($"Paramaeters doesn't contain {b.Property}");
+            return new MissingParameterException($"Parameters doesn't contain {b.Property}");
         }
 
         return res.ToString();
@@ -65,12 +65,54 @@ public class MailMerge
     {
         var b = block as TextBlock;
 
+        if (b is null)
+        {
+            return new UnknownBlockException("Block isn't TextBlock");
+        }
         return b.Text;
     }
 
     private Result<string> HandleIfBlock(Block block)
     {
-        throw new NotImplementedException();
+        var b = block as IfBlock;
+
+        if (b is null)
+        {
+            return new UnknownBlockException("Block isn't TextBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.Condition))
+        {
+            return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
+        }
+        var condition = (bool) _parameters[b.Condition];
+
+        if (!condition)
+        {
+            return "";
+        }
+
+
+        var consRes = "";
+        foreach (var consB in b.Consequence)
+        {
+            var result = consB switch
+            {
+                IfBlock => HandleIfBlock(consB),
+                TextBlock => HandleTextBlock(consB),
+                ReplaceBlock => HandleReplaceBlock(consB),
+                _ => throw new NotImplementedException("unknown block")
+            };
+
+            if (result.IsError)
+            {
+                return result.GetError();
+            }
+
+            consRes += result.GetValue();
+        }
+
+        return consRes;
     }
 }
 
