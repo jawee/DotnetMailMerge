@@ -147,7 +147,6 @@ public class MailMergeTests
     public void If_IntCondition_Error()
     { 
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
-        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
 
         var sut = new MailMerge(template, new() { 
             { "title", "Title" },
