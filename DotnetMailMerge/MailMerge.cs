@@ -15,7 +15,7 @@ public class MailMerge
 
     public Result<string, Exception> Render() 
     {
-        var ast = _parser.Parse();
+        var ast = _parser.Parse().GetValue();
 
         var res = "";
         foreach (var block in ast.Blocks)

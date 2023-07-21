@@ -13,7 +13,7 @@ public class ParserTests
         var input = "<html></html>";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -37,7 +37,7 @@ public class ParserTests
         var input = "{{myproperty}}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -60,7 +60,7 @@ public class ParserTests
         var input = "{{ myproperty }}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -85,7 +85,7 @@ public class ParserTests
         var input = "<p>{{ myproperty }}</p>";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 3)
         {
@@ -111,7 +111,7 @@ public class ParserTests
         var input = "<p>{{ prop1 }}{{ prop2 }}</p>";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 4)
         {
@@ -129,7 +129,7 @@ public class ParserTests
         var input = "{{#if somebool }}{{/if}}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -149,7 +149,7 @@ public class ParserTests
         var input = "{{#if somebool }}Lorem ipsum{{/if}}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -172,7 +172,7 @@ public class ParserTests
         var input = "{{#if somebool }}{{#if otherbool}}Lorem ipsum{{/if}}{{/if}}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -205,7 +205,7 @@ public class ParserTests
         var input = "{{#if somebool }}<p>{{ p }}</p>{{/if}}";
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var ast = parser.Parse();
+        var ast = parser.Parse().GetValue();
 
         if (ast.Blocks.Count != 1)
         {
@@ -223,4 +223,32 @@ public class ParserTests
             Assert.That(ifBlock.Consequence[i], Is.EqualTo(expectedConsequence[i]));
         }
     }
+
+    //[Test]
+    //public void TestParseIfElse() 
+    //{ 
+    //    var input = "{{#if somebool }}Lorem ipsum{{else}}Ipsum lorem{{/if}}";
+    //    var lexer = new Lexer(input);
+    //    var parser = new Parser(lexer);
+    //    var ast = parser.Parse().GetValue();
+
+    //    if (ast.Blocks.Count != 1)
+    //    {
+    //        Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+    //    }
+
+    //    var ifBlock = ast.Blocks.First() as IfBlock;
+
+    //    Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+    //    Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+    //    Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+    //    var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
+    //    Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+    //    Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+
+    //    Assert.That(ifBlock.Alternative, Has.Count.EqualTo(1));
+    //    var alternativeBlock = ifBlock.Alternative.First() as TextBlock;
+    //    Assert.That(alternativeBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+    //    Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
+    //}
 }
