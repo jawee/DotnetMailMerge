@@ -118,6 +118,7 @@ public class Parser
             return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
         }
 
+        //TODO: Check if it's actual end or {{else}} {{elseif}}
         while (_curToken.TokenType != TokenType.End)
         {
             NextToken();
