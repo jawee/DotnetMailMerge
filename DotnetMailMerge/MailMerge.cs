@@ -15,7 +15,12 @@ public class MailMerge
 
     public Result<string, Exception> Render() 
     {
-        var ast = _parser.Parse().GetValue();
+        var parseResult = _parser.Parse();
+        if (parseResult.IsError)
+        {
+            return new Exception("Render failed");
+        }
+        var ast = parseResult.GetValue();
 
         var res = "";
         foreach (var block in ast.Blocks)

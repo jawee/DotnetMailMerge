@@ -29,10 +29,11 @@ public class Parser
             var blockResult = ParseBlock();
 
             var block = blockResult.Match(success => success, _ => null);
-            if (block is not null)
+            if (block is null)
             {
-                blocks.Add(block);
+                return blockResult.GetError();
             }
+            blocks.Add(block);
             //NextToken();
         }
 
@@ -70,23 +71,24 @@ public class Parser
             var blockResult = ParseBlock();
 
             var block = blockResult.Match(success => success, _ => null);
-            if (block is not null)
+            if (block is null)
             {
-                blocks.Add(block);
+                throw new Exception("Exception in ParseConsequence");
             }
+            blocks.Add(block);
             //NextToken();
         }
 
         return blocks;
     }
 
-    private Result<string> ParseConditional() 
+    private string ParseConditional() 
     {
-
+        NextToken(); // #
         var conditional = "";
         while (_curToken.Literal != " ")
         {
-            conditional = _curToken.Literal;
+            conditional += _curToken.Literal;
             NextToken();
         }
 
@@ -97,13 +99,15 @@ public class Parser
     {
         //if asdf }} consequence {{/if}}
         var conditional = ParseConditional();
-        NextToken();
-        var condition = "";
-        while (_curToken.TokenType != TokenType.End)
-        {
-            condition += _curToken.Literal;
-            NextToken();
+
+        if (conditional is not "if")
+        { 
+            return new Exception($"Conditional was not 'if', was '{conditional}'");
         }
+
+        NextToken();
+
+        var condition = ParseCondition();
 
         var consequence = ParseConsequence();
 
@@ -119,6 +123,18 @@ public class Parser
         NextToken();
 
         return new IfBlock { Condition = condition.Trim(), Consequence = consequence };
+    }
+
+    private string ParseCondition()
+    {
+        var condition = "";
+        while (_curToken.TokenType != TokenType.End)
+        {
+            condition += _curToken.Literal;
+            NextToken();
+        }
+
+        return condition;
     }
 
     private Result<Block> ParseReplacement()
