@@ -1,4 +1,6 @@
-﻿namespace DotnetMailMerge;
+﻿using DotnetMailMerge.Exceptions;
+
+namespace DotnetMailMerge;
 
 public class Parser
 {
@@ -102,7 +104,7 @@ public class Parser
 
         if (conditional is not "if")
         { 
-            return new Exception($"Conditional was not 'if', was '{conditional}'");
+            return new UnknownConditionalException($"Conditional was not 'if', was '{conditional}'");
         }
 
         NextToken();

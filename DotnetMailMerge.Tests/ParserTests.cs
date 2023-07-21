@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using DotnetMailMerge.Exceptions;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -204,6 +205,18 @@ public class ParserTests
         {
             Assert.That(ifBlock.Consequence[i], Is.EqualTo(expectedConsequence[i]));
         }
+    }
+
+    [Test]
+    public void TestUnknownConditional_ReturnsUnknownConditionalException()
+    {
+        var input = "{{#unknownconditional asdf }}{{/unknownconditional}}";
+        var parser = new Parser(new Lexer(input));
+
+        var parseResult = parser.Parse();
+
+        Assert.That(parseResult.IsError, Is.True);
+        Assert.That(parseResult.GetError(), Is.InstanceOf<UnknownConditionalException>());
     }
 
     //[Test]
