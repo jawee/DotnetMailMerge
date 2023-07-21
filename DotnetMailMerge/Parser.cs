@@ -36,7 +36,6 @@ public class Parser
                 return blockResult.GetError();
             }
             blocks.Add(block);
-            //NextToken();
         }
 
         return new Ast { Blocks = blocks };
@@ -68,7 +67,7 @@ public class Parser
         NextToken();
         var blocks = new List<Block>();
 
-        while (!(_curToken.TokenType == TokenType.Start && _peekToken.Literal == "/"))
+        while (!(_curToken.TokenType == TokenType.Start && (_peekToken.Literal == "/" || _peekToken.Literal == "e")))
         {
             var blockResult = ParseBlock();
 
@@ -78,7 +77,6 @@ public class Parser
                 throw new Exception("Exception in ParseConsequence");
             }
             blocks.Add(block);
-            //NextToken();
         }
 
         return blocks;
@@ -118,14 +116,24 @@ public class Parser
             return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
         }
 
+        NextToken();
         //TODO: Check if it's actual end or {{else}} {{elseif}}
-        while (_curToken.TokenType != TokenType.End)
+        var nextConditional = ParseCondition();
+
+        var alternative = new List<Block>();
+        if (nextConditional is not "/if") 
         {
-            NextToken();
+            alternative = nextConditional switch
+            {
+                "else" => ParseConsequence(),
+                _ => throw new Exception($"'{nextConditional}'"),
+            };
         }
+
+        _ = ParseCondition();
         NextToken();
 
-        return new IfBlock { Condition = condition.Trim(), Consequence = consequence };
+        return new IfBlock { Condition = condition.Trim(), Consequence = consequence , Alternative = alternative };
     }
 
     private string ParseCondition()
@@ -158,7 +166,6 @@ public class Parser
     private Result<Block> ParseLogicBlock()
     {
         NextToken();
-
         Result<Block> result = _curToken.Literal switch
         {
             "#" => ParseIf(),

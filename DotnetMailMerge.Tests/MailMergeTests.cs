@@ -146,10 +146,9 @@ public class MailMergeTests
     [Test]
     public void If_IntCondition_Error()
     { 
-        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var template = @"<html><body>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
 
         var sut = new MailMerge(template, new() { 
-            { "title", "Title" },
             { "show", 1 }
          });
         var result = sut.Render();

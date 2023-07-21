@@ -219,33 +219,31 @@ public class ParserTests
         Assert.That(parseResult.GetError(), Is.InstanceOf<UnknownConditionalException>());
     }
 
-    //[Test]
-    //public void TestParseIfElse() 
-    //{ 
-    //    var input = "{{#if somebool }}Lorem ipsum{{else}}Ipsum lorem{{/if}}";
-    //    var lexer = new Lexer(input);
-    //    var parser = new Parser(lexer);
-    //    var ast = parser.Parse().GetValue();
+    [Test]
+    public void TestParseIfElse()
+    {
+        var input = "{{#if somebool }}Lorem ipsum{{else}}Ipsum lorem{{/if}}";
+        var ast = GetAst(input);
 
-    //    if (ast.Blocks.Count != 1)
-    //    {
-    //        Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
-    //    }
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
 
-    //    var ifBlock = ast.Blocks.First() as IfBlock;
+        var ifBlock = ast.Blocks.First() as IfBlock;
 
-    //    Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-    //    Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-    //    Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
-    //    var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
-    //    Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
-    //    Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
 
-    //    Assert.That(ifBlock.Alternative, Has.Count.EqualTo(1));
-    //    var alternativeBlock = ifBlock.Alternative.First() as TextBlock;
-    //    Assert.That(alternativeBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
-    //    Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
-    //}
+        Assert.That(ifBlock.Alternative, Has.Count.EqualTo(1));
+        var alternativeBlock = ifBlock.Alternative.First() as TextBlock;
+        Assert.That(alternativeBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
+    }
 
 
     private static Ast GetAst(string input)
