@@ -160,4 +160,36 @@ public class MailMergeTests
             Assert.That(error, Is.TypeOf<ConditionException>());
         });
     }
+
+    [Test]
+    public void IfElse_ConditionFalse_ReturnsElse()
+    {
+        var template = @"<html><body>{{#if show}}Show{{else}}Else{{/if}}</body></html>";
+        var expected = @"<html><body>Else</body></html>";
+
+        var sut = new MailMerge(template, new()
+        {
+            { "show", false },
+        });
+
+        var result = sut.Render();
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void IfElse_ConditionTrue_ReturnsIf()
+    {
+        var template = @"<html><body>{{#if show}}Show{{else}}Else{{/if}}</body></html>";
+        var expected = @"<html><body>Show</body></html>";
+
+        var sut = new MailMerge(template, new()
+        {
+            { "show", true },
+        });
+
+        var result = sut.Render();
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
 }

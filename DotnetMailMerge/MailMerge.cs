@@ -126,7 +126,26 @@ public class MailMerge
 
         if (!condition)
         {
-            return "";
+            var alternative = "";
+            foreach (var altBlock in b.Alternative)
+            {
+                var result = altBlock switch
+                {
+                    IfBlock => HandleIfBlock(altBlock),
+                    TextBlock => HandleTextBlock(altBlock),
+                    ReplaceBlock => HandleReplaceBlock(altBlock),
+                    _ => throw new NotImplementedException("unknown block")
+                };
+
+                if (result.IsError)
+                {
+                    return result.GetError();
+                }
+
+                alternative += result.GetValue();
+            }
+
+            return alternative;
         }
 
 
