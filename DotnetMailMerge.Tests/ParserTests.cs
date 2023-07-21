@@ -11,9 +11,7 @@ public class ParserTests
     public void TestParseTextBlock()
     {
         var input = "<html></html>";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -35,9 +33,7 @@ public class ParserTests
     public void TestParseReplacementBlock_NoWhitespace()
     {
         var input = "{{myproperty}}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -58,9 +54,7 @@ public class ParserTests
     public void TestParseReplacementBlock()
     {
         var input = "{{ myproperty }}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -83,9 +77,7 @@ public class ParserTests
             new TextBlock { Text = "</p>"},
         };
         var input = "<p>{{ myproperty }}</p>";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 3)
         {
@@ -109,9 +101,7 @@ public class ParserTests
             new TextBlock { Text = "</p>"},
         };
         var input = "<p>{{ prop1 }}{{ prop2 }}</p>";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 4)
         {
@@ -127,9 +117,7 @@ public class ParserTests
     public void TestParseIfBlock()
     {
         var input = "{{#if somebool }}{{/if}}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -147,9 +135,7 @@ public class ParserTests
     public void TestParseIfBlockWithTextConsequence()
     {
         var input = "{{#if somebool }}Lorem ipsum{{/if}}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -170,9 +156,7 @@ public class ParserTests
     public void TestParseNestedIf()
     {
         var input = "{{#if somebool }}{{#if otherbool}}Lorem ipsum{{/if}}{{/if}}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -203,9 +187,7 @@ public class ParserTests
             new TextBlock { Text = "</p>"},
         };
         var input = "{{#if somebool }}<p>{{ p }}</p>{{/if}}";
-        var lexer = new Lexer(input);
-        var parser = new Parser(lexer);
-        var ast = parser.Parse().GetValue();
+        var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
         {
@@ -251,4 +233,20 @@ public class ParserTests
     //    Assert.That(alternativeBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
     //    Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
     //}
+
+
+    private static Ast GetAst(string input)
+    { 
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var parseResult = parser.Parse();
+
+        if (parseResult.IsError)
+        {
+            Assert.Fail($"{parseResult.GetError()}");
+        }
+        var ast = parseResult.GetValue();
+
+        return ast;
+    }
 }
