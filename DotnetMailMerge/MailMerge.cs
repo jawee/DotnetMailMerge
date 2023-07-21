@@ -77,6 +77,30 @@ public class MailMerge
         return b.Text;
     }
 
+    private Result<bool> EvaluateCondition(string conditionKey)
+    {
+        var param = _parameters[conditionKey];
+
+        if (param is null)
+        {
+            return new MissingParameterException(nameof(conditionKey));
+        }
+
+        bool? res = param switch
+        {
+            bool => (bool)param,
+            string => ((string)param).Length != 0,
+            _ => null,
+        };
+
+        if (res is null)
+        {
+            return new NotImplementedException($"Condition of type {param.GetType()} isn't supported.");
+        }
+
+        return res.Value;
+    }
+
     private Result<string> HandleIfBlock(Block block)
     {
         var b = block as IfBlock;
@@ -90,7 +114,15 @@ public class MailMerge
         {
             return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
         }
-        var condition = (bool) _parameters[b.Condition];
+
+        var conditionResult = EvaluateCondition(b.Condition);
+
+        if (conditionResult.IsError)
+        {
+            return new ConditionException(conditionResult.GetError().Message);
+        }
+
+        var condition = conditionResult.GetValue();
 
         if (!condition)
         {

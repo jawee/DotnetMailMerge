@@ -98,6 +98,36 @@ public class MailMergeTests
     }
 
     [Test]
+    public void If_EmptyStringCondition_EvaluatesAsFalse()
+    { 
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
+
+        var sut = new MailMerge(template, new() { 
+            { "title", "Title" },
+            { "show", "" }
+         });
+        var result = sut.Render();
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void If_StringConditionWithValue_EvaluatesAsTrue()
+    { 
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
+
+        var sut = new MailMerge(template, new() { 
+            { "title", "Title" },
+            { "show", "a" }
+         });
+        var result = sut.Render();
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
     public void If_Nested()
     {
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{#if shownested}}<p>Nested</p>{{/if}}{{/if}}</body></html>"; 
@@ -111,5 +141,25 @@ public class MailMergeTests
         var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void If_IntCondition_Error()
+    { 
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
+
+        var sut = new MailMerge(template, new() { 
+            { "title", "Title" },
+            { "show", 1 }
+         });
+        var result = sut.Render();
+
+        var error = result.Match(success => new Exception("Unexpected Success"), err => err);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsError, Is.True);
+            Assert.That(error, Is.TypeOf<ConditionException>());
+        });
     }
 }
