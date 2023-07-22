@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\" />
     <None Remove="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Templates\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>

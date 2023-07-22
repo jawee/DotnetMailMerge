@@ -46,8 +46,7 @@ public class MailMerge
 
     private Result<string> HandleReplaceBlock(Block block)
     {
-        var b = block as ReplaceBlock;
-        if (b is null)
+        if (block is not ReplaceBlock b)
         {
             return new UnknownBlockException("Block isn't ReplaceBlock");
         }
@@ -68,9 +67,7 @@ public class MailMerge
 
     private Result<string> HandleTextBlock(Block block)
     {
-        var b = block as TextBlock;
-
-        if (b is null)
+        if (block is not TextBlock b)
         {
             return new UnknownBlockException("Block isn't TextBlock");
         }
@@ -103,9 +100,7 @@ public class MailMerge
 
     private Result<string> HandleIfBlock(Block block)
     {
-        var b = block as IfBlock;
-
-        if (b is null)
+        if (block is not IfBlock b)
         {
             return new UnknownBlockException("Block isn't TextBlock");
         }
