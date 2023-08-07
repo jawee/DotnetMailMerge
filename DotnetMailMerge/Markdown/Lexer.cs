@@ -1,4 +1,6 @@
-﻿namespace DotnetMailMerge.Markdown;
+﻿using System.Linq;
+
+namespace DotnetMailMerge.Markdown;
 
 public class Lexer
 {
@@ -27,18 +29,48 @@ public class Lexer
 		ReadNextChar();
 
 		var token = _currentChar switch { 
-			var a when (a == '#' && IsSpecial(a, '#')) => new Token(TokenType.Heading),
-			var a when (a == '*' && IsSpecial(a, null)) => new Token(TokenType.Item),
+			var a when IsHeading(a) => LexHeading(),
+			var a when IsItem(a) => LexItem(),
 			'\n' => new Token(TokenType.LineBreak),
 			_ => new Token(TokenType.Letter, _currentChar.ToString()),
         };
 
-		return token;
+        return token;
     }
 
-	private bool IsSpecial(char? a, char? allowedPrev)
+	private Token LexItem()
 	{
-		if ( _prevChar == allowedPrev || _prevChar == null || _prevChar == '\n')
+        ReadNextChar();
+        return new Token(TokenType.Item);
+    }
+
+	private Token LexHeading()
+	{
+		if (_input[_readPos+1] == ' ')
+		{
+            ReadNextChar();
+        }
+		return new Token(TokenType.Heading);
+    }
+
+	private bool IsItem(char? a)
+	{
+		return IsSpecial(a, '*', new char?[] { '\n', null }, new char?[] { '.' });
+    }
+
+	private bool IsHeading(char? a)
+	{
+		return IsSpecial(a, '#', new char?[] { '#', '\n', null}, new char?[] { '#', ' ' });
+    }
+
+	private bool IsSpecial(char? a, char? expected, char?[] allowedPrev, char?[] allowedNext)
+	{
+		if (a != expected)
+		{
+			return false;
+		}
+
+		if (_input.Length > _readPos+1 && allowedNext.Contains(_input[_readPos+1]) && allowedPrev.Contains(_prevChar))
 		{
 			return true;
         }

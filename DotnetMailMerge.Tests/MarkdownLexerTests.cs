@@ -17,23 +17,23 @@ public class MarkdownLexerTests
     public void TestLexer()
     {
         var testCases = new[] {
-            new TestCase("#", new[] { CreateToken(TokenType.Heading) }),
-            new TestCase("*", new[] { CreateToken(TokenType.Item)} ),
+            new TestCase("# ", new[] { CreateToken(TokenType.Heading) }),
+            new TestCase("*.", new[] { CreateToken(TokenType.Item)} ),
             new TestCase("\n", new[] { CreateToken(TokenType.LineBreak)}),
             new TestCase("a", new[] { CreateToken(TokenType.Letter, "a")}),
-            new TestCase("##", new[] { CreateToken(TokenType.Heading), CreateToken(TokenType.Heading)}),
+            new TestCase("## ", new[] { CreateToken(TokenType.Heading), CreateToken(TokenType.Heading)}),
             new TestCase("# a#", new[] {
                 CreateToken(TokenType.Heading),
-                CreateToken(TokenType.Letter, " "),
                 CreateToken(TokenType.Letter, "a"),
                 CreateToken(TokenType.Letter, "#")
             }),
-            //new TestCase("{{p}}", new[] {
-            //    CreateToken(TokenType.Start, "{{"),
-            //    CreateToken(TokenType.Character, "p"),
-            //    CreateToken(TokenType.End, "}}"),
-            //    CreateToken(TokenType.EOF),
-            //}),
+            new TestCase("as df", new[] {
+                CreateToken(TokenType.Letter, "a"),
+                CreateToken(TokenType.Letter, "s"),
+                CreateToken(TokenType.Letter, " "),
+                CreateToken(TokenType.Letter, "d"),
+                CreateToken(TokenType.Letter, "f"),
+            }),
         };
 
         foreach (var testCase in testCases)
