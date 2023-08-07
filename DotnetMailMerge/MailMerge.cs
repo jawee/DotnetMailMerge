@@ -1,20 +1,20 @@
-﻿using DotnetMailMerge.Exceptions;
+﻿using System.Text.Json;
+using DotnetMailMerge.Exceptions;
 
 namespace DotnetMailMerge;
 
 public class MailMerge
 {
-    private readonly Dictionary<string, object> _parameters;
+    private Dictionary<string, object> _parameters;
     private readonly Parser _parser;
-    public MailMerge(string template, Dictionary<string, object> parameters)
+    public MailMerge(string template)
     {
-        _parameters = parameters;
-        var lexer = new Lexer(template);
-        _parser = new Parser(lexer);
+        _parser = new(new(template));
     }
 
-    public Result<string, Exception> Render() 
+    public Result<string, Exception> Render(Dictionary<string, object> parameters) 
     {
+        _parameters = parameters;
         var parseResult = _parser.Parse();
         if (parseResult.IsError)
         {

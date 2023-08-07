@@ -17,8 +17,8 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1></body></html>";
         var expected = @"<html><body><h1>Title</h1></body></html>";
 
-        var sut = new MailMerge(template, new() { { "title", "Title" } });
-        var result = sut.Render();
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { { "title", "Title" } });
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -29,8 +29,8 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}{{title}}{{title}}</h1></body></html>";
         var expected = @"<html><body><h1>TitleTitleTitle</h1></body></html>";
 
-        var sut = new MailMerge(template, new() { { "title", "Title" } });
-        var result = sut.Render();
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { { "title", "Title" } });
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -42,11 +42,11 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>{{body}}</p></body></html>";
         var expected = @"<html><body><h1>Title</h1><p>Body</p></body></html>";
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "title", "Title" },
             { "body", "Body" }
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -56,8 +56,8 @@ public class MailMergeTests
     {
         var template = @"<html><body><h1>{{title}}</h1><p>{{body}}</p></body></html>";
 
-        var sut = new MailMerge(template, new() { { "title", "Title" } });
-        var result = sut.Render();
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { { "title", "Title" } });
 
         var error = result.Match(success => new Exception("Unexpected Success"), err => err);
         Assert.Multiple(() =>
@@ -73,11 +73,11 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
         var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>"; 
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "title", "Title" },
             { "show", true }
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -88,11 +88,11 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
         var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
 
-        var sut = new MailMerge(template, new() {
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() {
             { "title", "Title" },
             { "show", false }
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -103,11 +103,11 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
         var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "title", "Title" },
             { "show", "" }
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -118,11 +118,11 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
         var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "title", "Title" },
             { "show", "a" }
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -133,12 +133,12 @@ public class MailMergeTests
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{#if shownested}}<p>Nested</p>{{/if}}{{/if}}</body></html>"; 
         var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p><p>Nested</p></body></html>"; 
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "title", "Title" },
             { "show", true },
             { "shownested", true },
          });
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -148,10 +148,10 @@ public class MailMergeTests
     { 
         var template = @"<html><body>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
 
-        var sut = new MailMerge(template, new() { 
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { 
             { "show", 1 }
          });
-        var result = sut.Render();
 
         var error = result.Match(success => new Exception("Unexpected Success"), err => err);
         Assert.Multiple(() =>
@@ -167,12 +167,12 @@ public class MailMergeTests
         var template = @"<html><body>{{#if show}}Show{{else}}Else{{/if}}</body></html>";
         var expected = @"<html><body>Else</body></html>";
 
-        var sut = new MailMerge(template, new()
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
         {
             { "show", false },
         });
-
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
@@ -183,12 +183,12 @@ public class MailMergeTests
         var template = @"<html><body>{{#if show}}Show{{else}}Else{{/if}}</body></html>";
         var expected = @"<html><body>Show</body></html>";
 
-        var sut = new MailMerge(template, new()
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
         {
             { "show", true },
         });
-
-        var result = sut.Render();
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
