@@ -9,9 +9,11 @@
   <ItemGroup>
     <None Remove="Exceptions\" />
     <None Remove="Templating\" />
+    <None Remove="Markdown\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Exceptions\" />
     <Folder Include="Templating\" />
+    <Folder Include="Markdown\" />
   </ItemGroup>
 </Project>
