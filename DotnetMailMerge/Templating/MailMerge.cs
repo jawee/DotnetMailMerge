@@ -1,12 +1,12 @@
-﻿using System.Text.Json;
-using DotnetMailMerge.Exceptions;
+﻿using DotnetMailMerge.Exceptions;
 
-namespace DotnetMailMerge;
+namespace DotnetMailMerge.Templating;
 
 public class MailMerge
 {
-    private Dictionary<string, object> _parameters;
+    private Dictionary<string, object> _parameters = new();
     private readonly Parser _parser;
+
     public MailMerge(string template)
     {
         _parser = new(new(template));

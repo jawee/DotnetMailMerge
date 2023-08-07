@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using DotnetMailMerge.Exceptions;
 using System;
+using DotnetMailMerge.Templating;
 
 namespace DotnetMailMerge.Tests;
 

@@ -1,6 +1,6 @@
 ﻿using DotnetMailMerge.Exceptions;
 
-namespace DotnetMailMerge;
+namespace DotnetMailMerge.Templating;
 
 public class Parser
 {

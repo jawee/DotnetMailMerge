@@ -1,4 +1,5 @@
 ﻿using DotnetMailMerge.Exceptions;
+using DotnetMailMerge.Templating;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;

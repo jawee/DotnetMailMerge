@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using DotnetMailMerge.Templating;
+using NUnit.Framework;
 
 namespace DotnetMailMerge.Tests;
 

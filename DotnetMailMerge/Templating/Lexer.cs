@@ -1,4 +1,4 @@
-﻿namespace DotnetMailMerge;
+﻿namespace DotnetMailMerge.Templating;
 
 public class Lexer
 {
