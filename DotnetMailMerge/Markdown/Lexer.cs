@@ -17,6 +17,7 @@ public class Lexer
 
 	private void ReadNextChar()
 	{
+		_prevChar = _currentChar;
 		_readPos++;
 		_currentChar = _input.Length > _readPos ? _input[_readPos] : null;
     }

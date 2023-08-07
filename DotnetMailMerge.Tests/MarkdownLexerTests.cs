@@ -14,13 +14,20 @@ public class MarkdownLexerTests
     }
 
     [Test]
-    public void TestLexer() 
+    public void TestLexer()
     {
         var testCases = new[] {
             new TestCase("#", new[] { CreateToken(TokenType.Heading) }),
             new TestCase("*", new[] { CreateToken(TokenType.Item)} ),
             new TestCase("\n", new[] { CreateToken(TokenType.LineBreak)}),
             new TestCase("a", new[] { CreateToken(TokenType.Letter, "a")}),
+            new TestCase("##", new[] { CreateToken(TokenType.Heading), CreateToken(TokenType.Heading)}),
+            new TestCase("# a#", new[] {
+                CreateToken(TokenType.Heading),
+                CreateToken(TokenType.Letter, " "),
+                CreateToken(TokenType.Letter, "a"),
+                CreateToken(TokenType.Letter, "#")
+            }),
             //new TestCase("{{p}}", new[] {
             //    CreateToken(TokenType.Start, "{{"),
             //    CreateToken(TokenType.Character, "p"),
@@ -37,7 +44,7 @@ public class MarkdownLexerTests
                 var token = lexer.GetNextToken();
                 Assert.Multiple(() =>
                 {
-                    Assert.That(token.Literal, Is.EqualTo(expected.Literal),"TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal);
+                    Assert.That(token.Literal, Is.EqualTo(expected.Literal), "TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal);
                     Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), "TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType);
                 });
             }
@@ -49,7 +56,7 @@ public class MarkdownLexerTests
         return new Token(tokenType, literal);
     }
 
-    private readonly struct TestCase 
+    private readonly struct TestCase
     {
         public readonly string Input { get; }
         public readonly Token[] ExpectedTokens { get; }
