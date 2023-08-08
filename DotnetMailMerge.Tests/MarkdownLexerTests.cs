@@ -17,6 +17,7 @@ public class MarkdownLexerTests
     public void TestLexer()
     {
         var testCases = new[] {
+            new TestCase("", new[] { CreateToken(TokenType.EOF)}),
             new TestCase("# ", new[] { CreateToken(TokenType.Heading) }),
             new TestCase("*.", new[] { CreateToken(TokenType.Item)} ),
             new TestCase("\n", new[] { CreateToken(TokenType.LineBreak)}),

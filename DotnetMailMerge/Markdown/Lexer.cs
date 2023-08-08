@@ -32,6 +32,7 @@ public class Lexer
 			var a when IsHeading(a) => LexHeading(),
 			var a when IsItem(a) => LexItem(),
 			'\n' => new Token(TokenType.LineBreak),
+			null => new Token(TokenType.EOF),
 			_ => new Token(TokenType.Letter, _currentChar.ToString()),
         };
 
