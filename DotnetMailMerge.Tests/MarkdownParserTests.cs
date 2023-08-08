@@ -8,6 +8,30 @@ namespace DotnetMailMerge.Tests;
 public class MarkdownParserTests
 {
     [Test]
+    public void TestParseItem()
+    { 
+        var input = "* A";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected 'r' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var itemBlock = ast.Blocks.First() as ItemBlock;
+        if (itemBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(itemBlock, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(itemBlock.Text, Is.EqualTo("A"));
+        });
+    }
+
+    [Test]
     public void TestParseHeadingAndTextBlock()
     {
         var input = "# Heading\nLorem ipsum dolor sit amet.";

@@ -23,6 +23,7 @@ public class Parser
             {
                 TokenType.Heading => ParseHeading(),
                 TokenType.Letter => ParseParagraph(),
+				TokenType.Item => ParseItem(),
                 _ => throw new NotImplementedException(),
             };
 
@@ -31,6 +32,19 @@ public class Parser
         }
 
 		return new Ast { Blocks = blocks };
+    }
+
+	private ItemBlock ParseItem()
+	{
+		_curToken = _lexer.GetNextToken();
+
+		var str = "";
+		while (_curToken.TokenType is TokenType.Letter)
+		{
+			str += _curToken.Literal;
+			_curToken = _lexer.GetNextToken();
+        }
+		return new ItemBlock { Text = str };
     }
 
 	private ParagraphBlock ParseParagraph()
@@ -89,5 +103,9 @@ public class HeadingBlock : IBlock
 public class ParagraphBlock : IBlock
 {
 	public string Text { get; set; }
+}
 
+public class ItemBlock : IBlock
+{
+	public string Text { get; set; }
 }
