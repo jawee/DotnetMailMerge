@@ -17,13 +17,18 @@ public class Parser
 	{ 
         var blocks = new List<IBlock>();
 
-		IBlock block = _curToken.TokenType switch {
-			TokenType.Heading => ParseHeading(),
-			TokenType.Letter => ParseParagraph(),
-            _ => throw new NotImplementedException(),
-        };
+		while (_curToken.TokenType != TokenType.EOF)
+		{
+            IBlock block = _curToken.TokenType switch
+            {
+                TokenType.Heading => ParseHeading(),
+                TokenType.Letter => ParseParagraph(),
+                _ => throw new NotImplementedException(),
+            };
 
-		blocks.Add(block);
+            blocks.Add(block);
+			_curToken = _lexer.GetNextToken();
+        }
 
 		return new Ast { Blocks = blocks };
     }

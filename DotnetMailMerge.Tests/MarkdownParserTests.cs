@@ -8,6 +8,38 @@ namespace DotnetMailMerge.Tests;
 public class MarkdownParserTests
 {
     [Test]
+    public void TestParseHeadingAndTextBlock()
+    {
+        var input = "# Heading\nLorem ipsum dolor sit amet.";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 2)
+        {
+            Assert.Fail("Expected '2' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var headingBlock = ast.Blocks.First() as HeadingBlock;
+        if (headingBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(headingBlock, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(headingBlock.Text, Is.EqualTo("Heading"));
+            Assert.That(headingBlock.Level, Is.EqualTo(1));
+        });
+        var paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
+        if (paragraphBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType());
+        }
+        Assert.That(paragraphBlock, Is.Not.Null);
+        Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum dolor sit amet."));
+    }
+
+    [Test]
     public void TestParseTextBlock()
     {
         var input = "Lorem ipsum dolor sit amet.";
@@ -21,7 +53,7 @@ public class MarkdownParserTests
         var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType());
         }
 
         Assert.That(paragraphBlock, Is.Not.Null);
@@ -42,7 +74,7 @@ public class MarkdownParserTests
         var headingBlock = ast.Blocks.First() as HeadingBlock;
         if (headingBlock is null)
         {
-            Assert.Fail("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType());
         }
 
         Assert.That(headingBlock, Is.Not.Null);
@@ -67,7 +99,7 @@ public class MarkdownParserTests
         var headingBlock = ast.Blocks.First() as HeadingBlock;
         if (headingBlock is null)
         {
-            Assert.Fail("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType());
         }
 
         Assert.That(headingBlock, Is.Not.Null);
