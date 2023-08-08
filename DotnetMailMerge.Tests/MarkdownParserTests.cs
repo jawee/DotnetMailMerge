@@ -8,6 +8,36 @@ namespace DotnetMailMerge.Tests;
 public class MarkdownParserTests
 {
     [Test]
+    public void TestParseTwoItems()
+    { 
+        var input = "* A\n* B";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 2)
+        {
+            Assert.Fail("Expected '2' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var itemBlock = ast.Blocks.First() as ItemBlock;
+        if (itemBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(itemBlock, Is.Not.Null);
+        Assert.That(itemBlock.Text, Is.EqualTo("A"));
+
+        itemBlock = ast.Blocks.Last() as ItemBlock;
+        if (itemBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.Last().GetType());
+        }
+
+        Assert.That(itemBlock, Is.Not.Null);
+        Assert.That(itemBlock.Text, Is.EqualTo("B"));
+    }
+
+    [Test]
     public void TestParseItem()
     { 
         var input = "* A";
@@ -15,7 +45,7 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected 'r' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
         }
 
         var itemBlock = ast.Blocks.First() as ItemBlock;
