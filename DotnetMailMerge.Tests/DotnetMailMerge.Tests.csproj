@@ -22,4 +22,12 @@
   <ItemGroup>
     <ProjectReference Include="..\DotnetMailMerge\DotnetMailMerge.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Markdown\" />
+    <None Remove="Templating\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Markdown\" />
+    <Folder Include="Templating\" />
+  </ItemGroup>
 </Project>
