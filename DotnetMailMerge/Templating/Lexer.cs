@@ -33,7 +33,8 @@ public class Lexer
 		ReadNextChar();
 		var res = _currentChar switch
 		{
-			'}' => new Token(TokenType.End, "}}"),
+			var a when IsMdEnd(a) => new Token(TokenType.EndMd),
+			'}' => new Token(TokenType.End),
 			_ => new Token(TokenType.Illegal),
 		};
 
@@ -45,13 +46,44 @@ public class Lexer
 		ReadNextChar();
 		var res = _currentChar switch
 		{
-			'{' => new Token(TokenType.Start, "{{"),
+			var a when IsMdStart(a) => new Token(TokenType.StartMd),
+			'{' => new Token(TokenType.Start),
 			_ => new Token(TokenType.Illegal),
 		};
 
 		return res;
     }
 
+	private bool IsMdStart(char? a)
+	{
+		var peekChar = PeekNthChar(_readPos + 1);
+		if (a is not '{' || peekChar is not '{')
+		{
+			return false;
+        }
+
+		ReadNextChar();
+
+		return true;
+    }
+
+	private bool IsMdEnd(char? a)
+	{
+		var peekChar = PeekNthChar(_readPos + 1);
+		if (a is not '}' || peekChar is not '}')
+		{
+			return false;
+        }
+
+		ReadNextChar();
+
+		return true;
+    }
+
+	private char? PeekNthChar(int n)
+	{
+		return _input.Length > n ? _input[n] : null;
+    }
 	private void ReadNextChar()
 	{
 		_readPos++;
@@ -77,4 +109,6 @@ public enum TokenType
 	End,
 	EOF,
 	Illegal,
+    StartMd,
+    EndMd,
 }
