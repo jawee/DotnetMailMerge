@@ -46,8 +46,36 @@ public class MarkdownParserTests
         }
 
         Assert.That(headingBlock, Is.Not.Null);
-        Assert.That(headingBlock.Text, Is.EqualTo("Lorem"));
-        Assert.That(headingBlock.Level, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(headingBlock.Text, Is.EqualTo("Lorem"));
+            Assert.That(headingBlock.Level, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void TestParseHeadingLevelTwoBlock()
+    {
+        var input = "## Lorem";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        { 
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var headingBlock = ast.Blocks.First() as HeadingBlock;
+        if (headingBlock is null)
+        {
+            Assert.Fail("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        }
+
+        Assert.That(headingBlock, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(headingBlock.Text, Is.EqualTo("Lorem"));
+            Assert.That(headingBlock.Level, Is.EqualTo(2));
+        });
     }
 
     private static Ast GetAst(string input)
