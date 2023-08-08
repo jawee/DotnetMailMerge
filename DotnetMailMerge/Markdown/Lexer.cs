@@ -56,7 +56,7 @@ public class Lexer
 
 	private bool IsItem(char? a)
 	{
-		return IsSpecial(a, '*', new char?[] { '\n', null }, new char?[] { '.' });
+		return IsSpecial(a, '*', new char?[] { '\n', null }, new char?[] { ' ' });
     }
 
 	private bool IsHeading(char? a)

@@ -19,7 +19,7 @@ public class MarkdownLexerTests
         var testCases = new[] {
             new TestCase("", new[] { CreateToken(TokenType.EOF)}),
             new TestCase("# ", new[] { CreateToken(TokenType.Heading) }),
-            new TestCase("*.", new[] { CreateToken(TokenType.Item)} ),
+            new TestCase("* ", new[] { CreateToken(TokenType.Item)} ),
             new TestCase("\n", new[] { CreateToken(TokenType.LineBreak)}),
             new TestCase("a", new[] { CreateToken(TokenType.Letter, "a")}),
             new TestCase("## ", new[] { CreateToken(TokenType.Heading), CreateToken(TokenType.Heading)}),
@@ -34,6 +34,13 @@ public class MarkdownLexerTests
                 CreateToken(TokenType.Letter, " "),
                 CreateToken(TokenType.Letter, "d"),
                 CreateToken(TokenType.Letter, "f"),
+            }),
+            new TestCase("* A\n* B", new[] {
+                CreateToken(TokenType.Item),
+                CreateToken(TokenType.Letter, "A"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.Item),
+                CreateToken(TokenType.Letter, "B"),
             }),
         };
 
