@@ -44,7 +44,7 @@ public class Parser
 			str += _curToken.Literal;
 			_curToken = _lexer.GetNextToken();
         }
-		return new ItemBlock { Text = str };
+		return new ItemBlock(str);
     }
 
 	private ParagraphBlock ParseParagraph()
@@ -108,4 +108,9 @@ public class ParagraphBlock : IBlock
 public class ItemBlock : IBlock
 {
 	public string Text { get; set; }
+
+	public ItemBlock(string text)
+	{
+		Text = text;
+	}
 }

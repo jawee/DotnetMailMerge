@@ -7,6 +7,52 @@ namespace DotnetMailMerge.Tests;
 [TestFixture]
 public class MarkdownParserTests
 {
+
+    [Test]
+    public void TestParseHeadingParagraphItems()
+    {
+        var input = "# Heading\n* A\n* B";
+        var expected = new IBlock[] { 
+            new HeadingBlock(1, "Heading"),
+            new ItemBlock("A"),
+            new ItemBlock("B"),
+        };
+
+        var ast = GetAst(input);
+        if (ast.Blocks.Count != 3)
+        { 
+            Assert.Fail("Expected '3' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var block = ast.Blocks[0] as HeadingBlock;
+        if (block is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType());
+        }
+        Assert.That(block, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(block.Text, Is.EqualTo("Heading"));
+            Assert.That(block.Level, Is.EqualTo(1));
+        });
+
+        var itemBlock = ast.Blocks[1] as ItemBlock;
+        if (itemBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
+        }
+        Assert.That(itemBlock, Is.Not.Null);
+        Assert.That(itemBlock.Text, Is.EqualTo("A"));
+
+        itemBlock = ast.Blocks[2] as ItemBlock;
+        if (itemBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
+        }
+        Assert.That(itemBlock, Is.Not.Null);
+        Assert.That(itemBlock.Text, Is.EqualTo("B"));
+    }
+
     [Test]
     public void TestParseTwoItems()
     { 
