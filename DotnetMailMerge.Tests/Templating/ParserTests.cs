@@ -53,6 +53,23 @@ public class ParserTests
     }
 
     [Test]
+    public void TestParseMdReplacementBlock()
+    {
+        var input = "{{{ lorem }}}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var replaceBlock = ast.Blocks.First() as MdReplaceBlock;
+
+        Assert.That(replaceBlock, Is.Not.Null, "Expected 'MdReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock.Content, Is.EqualTo("lorem"));
+    }
+
+    [Test]
     public void TestParseReplacementBlock()
     {
         var input = "{{ myproperty }}";

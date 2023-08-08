@@ -46,6 +46,7 @@ public class Parser
         return _curToken.TokenType switch
         {
             TokenType.Start => ParseLogicBlock(),
+            TokenType.StartMd => ParseMdReplaceBlock(),
             TokenType.Character => ParseTextBlock(),
             _ => throw new Exception($"ParseBlock _ matched. {_curToken.TokenType} {_curToken.Literal}"),
         } ;
@@ -174,6 +175,21 @@ public class Parser
 
         return result;
     }
+
+    private Result<Block> ParseMdReplaceBlock()
+    {
+        var res = "";
+
+        while (_curToken.TokenType != TokenType.EndMd)
+        {
+            res += _curToken.Literal;
+            NextToken();
+        }
+
+        NextToken();
+
+        return new MdReplaceBlock() { Content = res.Trim() };
+    }
 }
 
 public class Ast 
@@ -221,6 +237,21 @@ public class IfBlock : Block
     }
 }
 
+public class MdReplaceBlock : Block
+{
+    public string Content { get; set; } = default!;
+
+    public override bool Equals(object? obj)
+    {
+        return obj is MdReplaceBlock block &&
+               Content == block.Content;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Content);
+    }
+}
 public class ReplaceBlock : Block
 {
     public string Property { get; set; } = default!;
