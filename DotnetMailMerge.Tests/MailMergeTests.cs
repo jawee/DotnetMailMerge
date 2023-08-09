@@ -23,6 +23,19 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
+    [Test]
+    public void MarkdownReplaceHeadingAndParagraph()
+    {
+        var template = @"<body><div>{{{ content }}}</div></body>";
+        var expected = @"<body><div><h1>Heading</h1>\n<p>Lorem ipsum</p></div></body>";
+
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { { "content", "# Heading\nLorem ipsum"} });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
     [Test]
     public void StringReplacement_SingleOccurrence()
     {
