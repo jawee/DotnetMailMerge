@@ -30,6 +30,7 @@ public class MailMerge
                 IfBlock => HandleIfBlock(block),
                 TextBlock => HandleTextBlock(block),
                 ReplaceBlock => HandleReplaceBlock(block),
+                MdReplaceBlock => HandleMdReplaceBlock(block),
                 _ => throw new NotImplementedException("unknown block")
             };
 
@@ -42,6 +43,35 @@ public class MailMerge
         }
 
         return res;
+    }
+
+    private Result<string> HandleMdReplaceBlock(Block block)
+    {
+        if (block is not MdReplaceBlock b)
+        { 
+            return new UnknownBlockException("Block isn't MdReplaceBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.Content))
+        {
+            return new MissingParameterException($"Parameters doesn't contain {b.Content}");
+        }
+
+        var content = _parameters[b.Content];
+
+        if (content is null)
+        { 
+            return new MissingParameterException($"Parameters doesn't contain {b.Content}");
+        }
+
+        var res = GetHtmlFromMarkdown(content.ToString());
+
+        return res.ToString();
+    }
+
+    private string GetHtmlFromMarkdown(string content)
+    {
+        return $"<p>{content}</p>";
     }
 
     private Result<string> HandleReplaceBlock(Block block)
