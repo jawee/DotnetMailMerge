@@ -39,6 +39,20 @@ public class Lexer
         return token;
     }
 
+	public Token PeekNextToken()
+	{ 
+		var peekChar = _currentChar = _input.Length > _readPos+1 ? _input[_readPos+1] : null; 
+		var token = peekChar switch { 
+			var a when IsHeading(a) => new Token(TokenType.Heading),
+			var a when IsItem(a) => new Token(TokenType.Item),
+			'\n' => new Token(TokenType.LineBreak),
+			null => new Token(TokenType.EOF),
+			_ => new Token(TokenType.Letter, _currentChar.ToString()),
+        };
+
+		return token;
+    }
+
 	private Token LexItem()
 	{
         ReadNextChar();
@@ -75,11 +89,6 @@ public class Lexer
 		{
 			return true;
         }
-		return false;
-    }
-
-	private bool IsAllowed(char? a)
-	{
 		return false;
     }
 }

@@ -1,6 +1,4 @@
-﻿using DotnetMailMerge;
-
-namespace DotnetMailMerge.Markdown;
+﻿namespace DotnetMailMerge.Markdown;
 
 public class Parser
 {
@@ -44,6 +42,11 @@ public class Parser
 			str += _curToken.Literal;
 			_curToken = _lexer.GetNextToken();
         }
+
+		//if (_curToken.TokenType is TokenType.LineBreak && _lexer.PeekNextToken().TokenType is TokenType.LineBreak)
+		//{
+		//	_curToken = _lexer.GetNextToken();
+		//}
 		return new ItemBlock(str);
     }
 

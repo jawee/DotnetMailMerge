@@ -7,13 +7,6 @@ namespace DotnetMailMerge.Tests;
 public class MarkdownLexerTests
 {
     [Test]
-    public void TestInitializeLexer_Ok()
-    {
-        var input = "";
-        _ = new Lexer(input);
-    }
-
-    [Test]
     public void TestLexer()
     {
         var testCases = new[] {
