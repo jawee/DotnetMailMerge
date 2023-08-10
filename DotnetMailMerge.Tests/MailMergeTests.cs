@@ -27,8 +27,8 @@ public class MailMergeTests
     [Test]
     public void MarkdownReplaceHeadingAndParagraph()
     {
-        var template = @"<body><div>{{{ content }}}</div></body>";
-        var expected = @"<body><div><h1>Heading</h1>\n<p>Lorem ipsum</p></div></body>";
+        var template = "<body><div>{{{ content }}}</div></body>";
+        var expected = "<body><div><h1>Heading</h1>\n<p>Lorem ipsum</p></div></body>";
 
         var sut = new MailMerge(template);
         var result = sut.Render(new() { { "content", "# Heading\nLorem ipsum"} });

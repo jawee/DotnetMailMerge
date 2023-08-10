@@ -71,7 +71,10 @@ public class MailMerge
 
     private string GetHtmlFromMarkdown(string content)
     {
-        return $"<p>{content}</p>";
+        var lexer = new Markdown.Lexer(content);
+        var parser = new Markdown.Parser(lexer);
+        var renderer = new Markdown.Renderer(parser);
+        return renderer.Render();
     }
 
     private Result<string> HandleReplaceBlock(Block block)
