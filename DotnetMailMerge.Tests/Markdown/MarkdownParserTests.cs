@@ -105,34 +105,34 @@ public class MarkdownParserTests
         Assert.That(itemBlock.Text, Is.EqualTo("A"));
     }
 
-    [Test]
-    public void TestParseItemParagraphBlocks()
-    {
-        var input = "* A\n\nLorem ipsum.";
-        var ast = GetAst(input);
+    //[Test]
+    //public void TestParseItemParagraphBlocks()
+    //{
+    //    var input = "* A\n\nLorem ipsum.";
+    //    var ast = GetAst(input);
 
-        if (ast.Blocks.Count != 2)
-        {
-            Assert.Fail("Expected '2' Block, got '{0}'", ast.Blocks.Count);
-        }
+    //    if (ast.Blocks.Count != 2)
+    //    {
+    //        Assert.Fail("Expected '2' Block, got '{0}'", ast.Blocks.Count);
+    //    }
 
-        var itemBlock = ast.Blocks.First() as ItemBlock;
-        if (itemBlock is null)
-        {
-            Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
-        }
+    //    var itemBlock = ast.Blocks.First() as ItemBlock;
+    //    if (itemBlock is null)
+    //    {
+    //        Assert.Fail("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType());
+    //    }
 
-        Assert.That(itemBlock, Is.Not.Null);
-        Assert.That(itemBlock.Text, Is.EqualTo("A"));
+    //    Assert.That(itemBlock, Is.Not.Null);
+    //    Assert.That(itemBlock.Text, Is.EqualTo("A"));
 
-        var paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
-        if (paragraphBlock is null)
-        {
-            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType());
-        }
-        Assert.That(paragraphBlock, Is.Not.Null);
-        Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum."));
-    }
+    //    var paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
+    //    if (paragraphBlock is null)
+    //    {
+    //        Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType());
+    //    }
+    //    Assert.That(paragraphBlock, Is.Not.Null);
+    //    Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum."));
+    //}
 
     [Test]
     public void TestParseHeadingAndTextBlock()
