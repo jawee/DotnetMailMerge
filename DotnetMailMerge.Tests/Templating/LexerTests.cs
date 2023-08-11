@@ -17,8 +17,8 @@ public class LexerTests
     public void TestLexer() 
     {
         var testCases = new[] {
-            new TestCase("{", new[] { CreateToken(TokenType.Illegal) }),
-            new TestCase("}", new[] { CreateToken(TokenType.Illegal) }),
+            new TestCase("{", new[] { CreateToken(TokenType.Character, "{") }),
+            new TestCase("}", new[] { CreateToken(TokenType.Character, "}") }),
             new TestCase("{{", new[] { CreateToken(TokenType.Start), CreateToken(TokenType.EOF)}),
             new TestCase("}}", new[] { CreateToken(TokenType.End), CreateToken(TokenType.EOF)}),
             new TestCase("{{{", new [] { CreateToken(TokenType.StartMd)}),

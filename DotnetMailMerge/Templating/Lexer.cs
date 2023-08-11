@@ -35,7 +35,7 @@ public class Lexer
 		{
 			var a when IsMdEnd(a) => new Token(TokenType.EndMd),
 			'}' => new Token(TokenType.End),
-			_ => new Token(TokenType.Illegal),
+			_ => new Token(TokenType.Character, "}"),
 		};
 
 		return res;
@@ -48,7 +48,7 @@ public class Lexer
 		{
 			var a when IsMdStart(a) => new Token(TokenType.StartMd),
 			'{' => new Token(TokenType.Start),
-			_ => new Token(TokenType.Illegal),
+			_ => new Token(TokenType.Character, "{"),
 		};
 
 		return res;
