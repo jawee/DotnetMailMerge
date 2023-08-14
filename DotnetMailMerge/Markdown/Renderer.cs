@@ -5,22 +5,34 @@ namespace DotnetMailMerge.Markdown;
 public class Renderer
 {
 	private readonly Parser _parser;
+	private IBlock? _currentBlock;
+	private int _readPos;
+	private readonly List<IBlock> _blocks;
 	public Renderer(Parser parser)
 	{
 		_parser = parser;
-	}
-
-	public string Render()
-	{
 		var parserResult = _parser.Parse();
 
 		var ast = parserResult.GetValue();
 
+		_blocks = ast.Blocks;
+		_readPos = 0;
+		NextBlock();
+	}
+
+	private void NextBlock()
+	{
+		_currentBlock = _readPos < _blocks.Count ? _blocks[_readPos] : null;
+		_readPos++;
+    }
+	public string Render()
+	{
 		var str = "";
-		foreach (var block in ast.Blocks)
-		{
-			str += RenderBlock(block);
+		while (_currentBlock is not null)
+		{ 
+			str += RenderBlock(_currentBlock);
 			str += "\n";
+			NextBlock();
         }
 
         str = str[..^"\n".Length];
@@ -29,24 +41,28 @@ public class Renderer
 		return str;
     }
 
-    private static string RenderBlock(IBlock block)
+    private string RenderBlock(IBlock block)
 	{
 		var str = block switch
 		{
 			HeadingBlock a => RenderHeadingBlock(a),
 			ParagraphBlock a => RenderParagraphBlock(a),
-			ItemBlock a => RenderItemBlock(a),
+			ItemBlock a => RenderItemBlock(),
 			_  => throw new UnknownBlockException("Unknown block for Renderer"),
 		};
 
 		return str;
     }
 
-	private static string RenderItemBlock(ItemBlock a)
+	private string RenderItemBlock()
 	{
 		var str = "<ul>";
-		str += $"<li>{a.Text}</li>";
-		str += "</ul>";
+		while(_currentBlock is ItemBlock a)
+		{
+            str += $"<li>{a.Text}</li>";
+			NextBlock();
+        }
+        str += "</ul>";
 
 		return str;
     }
