@@ -12,6 +12,7 @@ public class MarkdownRendererTests
     [TestCase("# Heading\nLorem ipsum", "<h1>Heading</h1>\n<p>Lorem ipsum</p>")]
     [TestCase("* A", "<ul><li>A</li></ul>")]
     [TestCase("* A\n* B", "<ul><li>A</li><li>B</li></ul>")]
+    [TestCase("# Heading\nLorem ipsum\ndolor sit", "<h1>Heading</h1>\n<p>Lorem ipsum dolor sit</p>")]
     public void TestRender(string input, string expected)
     {
         var renderer = GetRenderer(input);

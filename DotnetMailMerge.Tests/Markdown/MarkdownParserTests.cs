@@ -187,6 +187,27 @@ public class MarkdownParserTests
     }
 
     [Test]
+    public void TestParseTextBlockWithLinebreak()
+    {
+        var input = "Lorem ipsum\ndolor sit amet.";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
+        if (paragraphBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(paragraphBlock, Is.Not.Null);
+        Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum dolor sit amet."));
+    }
+
+    [Test]
     public void TestParseTextBlock()
     {
         var input = "Lorem ipsum dolor sit amet.";
