@@ -13,7 +13,7 @@ public class MailMergeTests
     }
 
     [Test]
-    public void MarkdownReplace()
+    public void MarkdownParagraphReplace()
     {
         var template = @"<body><div>{{{ paragraph }}}</div></body>";
         var expected = @"<body><div><p>Lorem ipsum</p></div></body>";
@@ -24,6 +24,17 @@ public class MailMergeTests
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
 
+    [Test]
+    public void MarkdownItemReplace()
+    {
+        var template = @"<body><div>{{{ items }}}</div></body>";
+        var expected = @"<body><div><ul><li>A</li><li>B</li></ul></div></body>";
+
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() { { "items", "* A\n* B"} });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
     [Test]
     public void MarkdownReplaceHeadingAndParagraph()
     {
