@@ -43,10 +43,30 @@ public class Parser
 			_curToken = _lexer.GetNextToken();
         }
 
-		//if (_curToken.TokenType is TokenType.LineBreak && _lexer.PeekNextToken().TokenType is TokenType.LineBreak)
-		//{
-		//	_curToken = _lexer.GetNextToken();
-		//}
+		if (_curToken.TokenType is TokenType.LineBreak)
+		{
+
+            if (_lexer.PeekNextToken().TokenType is TokenType.LineBreak)
+            {
+                // double line break, should get next block
+                _curToken = _lexer.GetNextToken();
+            }
+			else if (_lexer.PeekNextToken().TokenType is TokenType.Item)
+			{
+				//do nothing
+            }
+            else {
+				//still in item, should just parse until end
+				str += "\n";
+				_curToken = _lexer.GetNextToken();
+				while(_curToken.TokenType is TokenType.Letter)
+				{
+					str += _curToken.Literal;
+					_curToken = _lexer.GetNextToken();
+                }
+                _curToken = _lexer.GetNextToken();
+            }
+        }
 		return new ItemBlock(str);
     }
 

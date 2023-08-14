@@ -28,9 +28,10 @@ public class Lexer
 	{
 		ReadNextChar();
 
+		char? next = _input.Length > _readPos+1 ? _input[_readPos+1] : null; 
 		var token = _currentChar switch { 
-			var a when IsHeading(a) => LexHeading(),
-			var a when IsItem(a) => LexItem(),
+			var a when IsHeading(a, _prevChar, next) => LexHeading(),
+			var a when IsItem(a, _prevChar, next) => LexItem(),
 			'\n' => new Token(TokenType.LineBreak),
 			null => new Token(TokenType.EOF),
 			_ => new Token(TokenType.Letter, _currentChar.ToString()),
@@ -41,10 +42,12 @@ public class Lexer
 
 	public Token PeekNextToken()
 	{ 
-		var peekChar = _currentChar = _input.Length > _readPos+1 ? _input[_readPos+1] : null; 
+		char? peekChar = _input.Length > _readPos+1 ? _input[_readPos+1] : null; 
+		char? next = _input.Length > _readPos+2 ? _input[_readPos+2] : null; 
+
 		var token = peekChar switch { 
-			var a when IsHeading(a) => new Token(TokenType.Heading),
-			var a when IsItem(a) => new Token(TokenType.Item),
+			var a when IsHeading(a, _currentChar, next) => new Token(TokenType.Heading),
+			var a when IsItem(a, _currentChar, next) => new Token(TokenType.Item),
 			'\n' => new Token(TokenType.LineBreak),
 			null => new Token(TokenType.EOF),
 			_ => new Token(TokenType.Letter, _currentChar.ToString()),
@@ -68,24 +71,24 @@ public class Lexer
 		return new Token(TokenType.Heading);
     }
 
-	private bool IsItem(char? a)
+	private bool IsItem(char? a, char? prev, char? next)
 	{
-		return IsSpecial(a, '*', new char?[] { '\n', null }, new char?[] { ' ' });
+		return IsSpecial(a, prev, next, '*', new char?[] { '\n', null }, new char?[] { ' ' });
     }
 
-	private bool IsHeading(char? a)
+	private bool IsHeading(char? a, char? prev, char? next)
 	{
-		return IsSpecial(a, '#', new char?[] { '#', '\n', null}, new char?[] { '#', ' ' });
+		return IsSpecial(a, prev, next, '#', new char?[] { '#', '\n', null}, new char?[] { '#', ' ' });
     }
 
-	private bool IsSpecial(char? a, char? expected, char?[] allowedPrev, char?[] allowedNext)
+	private bool IsSpecial(char? a, char? prev, char? next, char? expected, char?[] allowedPrev, char?[] allowedNext)
 	{
 		if (a != expected)
 		{
 			return false;
 		}
 
-		if (_input.Length > _readPos+1 && allowedNext.Contains(_input[_readPos+1]) && allowedPrev.Contains(_prevChar))
+		if (_input.Length > _readPos+1 && allowedNext.Contains(next) && allowedPrev.Contains(prev))
 		{
 			return true;
         }
