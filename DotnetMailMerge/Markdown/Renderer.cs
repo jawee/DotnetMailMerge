@@ -35,8 +35,18 @@ public class Renderer
 		{
 			HeadingBlock a => RenderHeadingBlock(a),
 			ParagraphBlock a => RenderParagraphBlock(a),
+			ItemBlock a => RenderItemBlock(a),
 			_  => throw new UnknownBlockException("Unknown block for Renderer"),
 		};
+
+		return str;
+    }
+
+	private static string RenderItemBlock(ItemBlock a)
+	{
+		var str = "<ul>";
+		str += $"<li>{a.Text}</li>";
+		str += "</ul>";
 
 		return str;
     }
