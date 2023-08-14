@@ -78,6 +78,7 @@ public class Parser
         }
         if (_curToken.TokenType is TokenType.LineBreak && _lexer.PeekNextToken().TokenType is TokenType.LineBreak)
         {
+			_curToken = _lexer.GetNextToken();
 			return false;
         }
 

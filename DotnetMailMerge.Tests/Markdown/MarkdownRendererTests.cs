@@ -7,12 +7,13 @@ namespace DotnetMailMerge.Tests.Markdown;
 public class MarkdownRendererTests
 {
     [TestCase("Lorem ipsum", "<p>Lorem ipsum</p>")]
+    [TestCase("Lorem ipsum\n\nLorem ipsum", "<p>Lorem ipsum</p><p>Lorem ipsum</p>")]
     [TestCase("# Heading", "<h1>Heading</h1>")]
     [TestCase("## Heading", "<h2>Heading</h2>")]
-    [TestCase("# Heading\nLorem ipsum", "<h1>Heading</h1>\n<p>Lorem ipsum</p>")]
+    [TestCase("# Heading\nLorem ipsum", "<h1>Heading</h1><p>Lorem ipsum</p>")]
     [TestCase("* A", "<ul><li>A</li></ul>")]
     [TestCase("* A\n* B", "<ul><li>A</li><li>B</li></ul>")]
-    [TestCase("# Heading\nLorem ipsum\ndolor sit", "<h1>Heading</h1>\n<p>Lorem ipsum dolor sit</p>")]
+    [TestCase("# Heading\nLorem ipsum\ndolor sit", "<h1>Heading</h1><p>Lorem ipsum dolor sit</p>")]
     public void TestRender(string input, string expected)
     {
         var renderer = GetRenderer(input);

@@ -31,12 +31,8 @@ public class Renderer
 		while (_currentBlock is not null)
 		{ 
 			str += RenderBlock(_currentBlock);
-			str += "\n";
 			NextBlock();
         }
-
-        str = str[..^"\n".Length];
-
 
 		return str;
     }
@@ -47,7 +43,7 @@ public class Renderer
 		{
 			HeadingBlock a => RenderHeadingBlock(a),
 			ParagraphBlock a => RenderParagraphBlock(a),
-			ItemBlock a => RenderItemBlock(),
+			ItemBlock => RenderItemBlock(),
 			_  => throw new UnknownBlockException("Unknown block for Renderer"),
 		};
 

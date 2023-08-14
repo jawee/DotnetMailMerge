@@ -229,6 +229,36 @@ public class MarkdownParserTests
     }
 
     [Test]
+    public void TestParseTwoTextBlock()
+    {
+        var input = "Lorem ipsum dolor sit amet.\n\nLorem ipsum dolor sit amet.";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 2)
+        {
+            Assert.Fail("Expected '2' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
+        if (paragraphBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(paragraphBlock, Is.Not.Null);
+        Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum dolor sit amet."));
+
+        paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
+        if (paragraphBlock is null)
+        {
+            Assert.Fail("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType());
+        }
+
+        Assert.That(paragraphBlock, Is.Not.Null);
+        Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum dolor sit amet."));
+    }
+
+    [Test]
     public void TestParseHeadingBlock()
     {
         var input = "# Lorem";

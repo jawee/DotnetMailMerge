@@ -21,6 +21,16 @@ public class MarkdownLexerTests
                 CreateToken(TokenType.Letter, "a"),
                 CreateToken(TokenType.Letter, "#")
             }),
+            new TestCase("A B\n\nC D", new[] {
+                CreateToken(TokenType.Letter, "A"),
+                CreateToken(TokenType.Letter, " "),
+                CreateToken(TokenType.Letter, "B"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.Letter, "C"),
+                CreateToken(TokenType.Letter, " "),
+                CreateToken(TokenType.Letter, "D"),
+            }),
             new TestCase("as df", new[] {
                 CreateToken(TokenType.Letter, "a"),
                 CreateToken(TokenType.Letter, "s"),
