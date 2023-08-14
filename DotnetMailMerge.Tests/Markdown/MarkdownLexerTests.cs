@@ -35,6 +35,24 @@ public class MarkdownLexerTests
                 CreateToken(TokenType.Item),
                 CreateToken(TokenType.Letter, "B"),
             }),
+            new TestCase("* A\nB", new[] {
+                CreateToken(TokenType.Item),
+                CreateToken(TokenType.Letter, "A"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.Letter, "B"),
+                CreateToken(TokenType.EOF),
+            }),
+            new TestCase("* A\n* B\nC\n", new[] {
+                CreateToken(TokenType.Item),
+                CreateToken(TokenType.Letter, "A"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.Item),
+                CreateToken(TokenType.Letter, "B"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.Letter, "C"),
+                CreateToken(TokenType.LineBreak),
+                CreateToken(TokenType.EOF),
+            }),
         };
 
         foreach (var testCase in testCases)
