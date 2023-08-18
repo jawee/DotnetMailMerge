@@ -28,6 +28,11 @@ public class Lexer
 		return res;
 	}
 
+	public int GetReadPos()
+	{
+		return _readPos;
+	}
+
 	private Token PeekStart(int n)
 	{
 		var c = PeekNthChar(n+1);

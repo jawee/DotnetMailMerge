@@ -83,9 +83,38 @@ public class Parser
         return blocks;
     }
 
+    private bool CheckLiteral(string c, string[] words, int pos)
+    {
+        foreach(var word in words)
+        {
+            if (c != $"{word[pos]}")
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
     private bool ConsequenceShouldReadNext()
     {
-        return !(_curToken.TokenType == TokenType.Start && (_peekToken.Literal == "/" || _peekToken.Literal == "e"));
+        if (_curToken.TokenType is TokenType.Start && _peekToken.Literal == "/")
+        {
+            return false;
+        }
+
+        if (_curToken.TokenType is TokenType.Start && _peekToken.Literal == "e")
+        {
+            var matching = new string[] { "lse", "lseif" };
+            var c = 0;
+            var peekToken = _lexer.PeekNthToken(_lexer.GetReadPos());
+            while (peekToken.TokenType is TokenType.Character && CheckLiteral(peekToken.Literal, matching, c))
+            {
+                peekToken = _lexer.PeekNthToken(_lexer.GetReadPos()+(c++));
+            }
+            return false;
+        }
+
+        return true;
     }
 
     private string ParseConditional() 
