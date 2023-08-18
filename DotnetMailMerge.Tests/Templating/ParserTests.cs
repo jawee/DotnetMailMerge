@@ -153,7 +153,7 @@ public class ParserTests
     [Test]
     public void TestParseIfBlockWithTextConsequence()
     {
-        var input = "{{#if somebool }}Lorem ipsum{{/if}}";
+        var input = "{{#if somebool}}Lorem ipsum{{/if}}";
         var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
@@ -169,6 +169,55 @@ public class ParserTests
         var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
         Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
         Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+    }
+
+    [Test]
+    public void TestParseIfBlockWithReplaceConditional()
+    {
+        var input = "{{#if somebool}}{{replace}}{{/if}}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var ifBlock = ast.Blocks.First() as IfBlock;
+
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        var consequenceBlock = ifBlock.Consequence.First() as ReplaceBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock.Property, Is.EqualTo("replace"));
+    }
+
+    [Test]
+    public void TestParseIfBlockWithReplaceConditionalAndText()
+    {
+        var input = "{{#if somebool}}<p>{{replace}}</p>{{/if}}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var ifBlock = ast.Blocks.First() as IfBlock;
+
+        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+
+        var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock.Text, Is.EqualTo("<p>"));
+        var secondConsequenceBlock = ifBlock.Consequence[1] as ReplaceBlock;
+        Assert.That(secondConsequenceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(secondConsequenceBlock.Property, Is.EqualTo("replace"));
+        consequenceBlock = ifBlock.Consequence.Last() as TextBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock.Text, Is.EqualTo("</p>"));
     }
 
     [Test]

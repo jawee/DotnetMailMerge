@@ -232,7 +232,7 @@ public class MailMergeTests
     [Test]
     public void IfWithReplaceOnly_ConditionTrue_ReturnsIf()
     {
-        var template = @"<html><body>{{#if show}}{{text}}{/if}}</body></html>";
+        var template = @"<html><body>{{#if show}}{{text}}{{/if}}</body></html>";
         var expected = @"<html><body>Lorem ipsum</body></html>";
 
         var sut = new MailMerge(template);
@@ -249,7 +249,7 @@ public class MailMergeTests
     [Test]
     public void IfWithReplace_ConditionTrue_ReturnsIf()
     {
-        var template = @"<html><body>{{#if some.show}}<p>{{some.text}}</p>{/if}}</body></html>";
+        var template = @"<html><body>{{#if some.show}}<p>{{some.text}}</p>{{/if}}</body></html>";
         var expected = @"<html><body><p>Lorem ipsum</p></body></html>";
 
         var sut = new MailMerge(template);
