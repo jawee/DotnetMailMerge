@@ -228,4 +228,37 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
+    [Test]
+    public void IfWithReplaceOnly_ConditionTrue_ReturnsIf()
+    {
+        var template = @"<html><body>{{#if show}}{{text}}{/if}}</body></html>";
+        var expected = @"<html><body>Lorem ipsum</body></html>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "show", true },
+            { "text", "Lorem ipsum" },
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+    [Test]
+    public void IfWithReplace_ConditionTrue_ReturnsIf()
+    {
+        var template = @"<html><body>{{#if some.show}}<p>{{some.text}}</p>{/if}}</body></html>";
+        var expected = @"<html><body><p>Lorem ipsum</p></body></html>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "some.show", true },
+            { "some.text", "Lorem ipsum" },
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
 }

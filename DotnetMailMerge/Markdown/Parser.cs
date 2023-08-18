@@ -84,6 +84,7 @@ public class Parser
 
 		return true;
     }
+
     private ParagraphBlock ParseParagraph()
 	{
 		var str = _curToken.Literal;
