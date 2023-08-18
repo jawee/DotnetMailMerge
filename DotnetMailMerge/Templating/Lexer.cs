@@ -13,6 +13,69 @@ public class Lexer
 		_currentChar = input.Length == 0 ? null : _input[0];
 	}
 
+	public Token PeekNthToken(int n)
+	{
+		var c = PeekNthChar(n);
+
+		var res = c switch
+		{
+			'{' => PeekStart(n),
+			'}' => PeekEnd(n),
+			null => new Token(TokenType.EOF),
+			_ => new Token(TokenType.Character, $"{c}"),
+		};
+
+		return res;
+	}
+
+	private Token PeekStart(int n)
+	{
+		var c = PeekNthChar(n+1);
+		var res = c switch
+		{
+			var a when PeekIsMdStart(a, n+1) => new Token(TokenType.StartMd),
+			'{' => new Token(TokenType.Start),
+			_ => new Token(TokenType.Character, "{"),
+		};
+
+		return res;
+	}
+
+	private bool PeekIsMdStart(char? a, int readPos)
+	{
+		var peekChar = PeekNthChar(readPos + 1);
+		if (a is not '{' || peekChar is not '{')
+		{
+			return false;
+        }
+
+		return true;
+    }
+
+	private bool PeekIsMdEnd(char? a, int readPos)
+	{
+		var peekChar = PeekNthChar(readPos + 1);
+		if (a is not '}' || peekChar is not '}')
+		{
+			return false;
+        }
+
+		return true;
+    }
+
+	private Token PeekEnd(int n)
+	{
+		var c = PeekNthChar(n+1);
+		var res = c switch
+		{
+			var a when PeekIsMdEnd(a, n+1) => new Token(TokenType.EndMd),
+			'}' => new Token(TokenType.End),
+			_ => new Token(TokenType.Character, "}"),
+		};
+
+		return res;
+	}
+
 	public Token GetNextToken()
 	{
         var res = _currentChar switch
@@ -83,6 +146,7 @@ public class Lexer
 	{
 		return _input.Length > n ? _input[n] : null;
     }
+
 	private void ReadNextChar()
 	{
 		_readPos++;

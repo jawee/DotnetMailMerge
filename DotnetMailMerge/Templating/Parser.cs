@@ -68,7 +68,7 @@ public class Parser
         NextToken();
         var blocks = new List<Block>();
 
-        while (!(_curToken.TokenType == TokenType.Start && (_peekToken.Literal == "/" || _peekToken.Literal == "e")))
+        while (ConsequenceShouldReadNext())
         {
             var blockResult = ParseBlock();
 
@@ -81,6 +81,11 @@ public class Parser
         }
 
         return blocks;
+    }
+
+    private bool ConsequenceShouldReadNext()
+    {
+        return !(_curToken.TokenType == TokenType.Start && (_peekToken.Literal == "/" || _peekToken.Literal == "e"));
     }
 
     private string ParseConditional() 
