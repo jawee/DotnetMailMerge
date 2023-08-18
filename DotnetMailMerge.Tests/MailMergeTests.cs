@@ -245,6 +245,7 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
     [Test]
     public void IfWithReplace_ConditionTrue_ReturnsIf()
     {

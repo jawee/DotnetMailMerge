@@ -135,7 +135,7 @@ public class ParserTests
     [Test]
     public void TestParseIfBlock()
     {
-        var input = "{{#if somebool }}{{/if}}";
+        var input = "{{#if somebool}}{{/if}}";
         var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
@@ -205,7 +205,7 @@ public class ParserTests
             new ReplaceBlock { Property = "p"},
             new TextBlock { Text = "</p>"},
         };
-        var input = "{{#if somebool }}<p>{{ p }}</p>{{/if}}";
+        var input = "{{#if somebool}}<p>{{p}}</p>{{/if}}";
         var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
