@@ -23,7 +23,6 @@ public class Lexer
 			_ => new Token(TokenType.Character, $"{_currentChar}"),
         };
 
-
 		ReadNextChar();
 		return res;
     }
