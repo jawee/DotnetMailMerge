@@ -83,18 +83,6 @@ public class Parser
         return blocks;
     }
 
-    private bool CheckLiteral(string c, string[] words, int pos)
-    {
-        foreach(var word in words)
-        {
-            if (c != $"{word[pos]}")
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
     private bool ConsequenceShouldReadNext()
     {
         if (_curToken.TokenType is TokenType.Start && _peekToken.Literal == "/")
@@ -104,14 +92,22 @@ public class Parser
 
         if (_curToken.TokenType is TokenType.Start && _peekToken.Literal == "e")
         {
-            var matching = new string[] { "lse", "lseif" };
+            var matching = new string[] { "else", "elseif" };
             var c = 0;
-            var peekToken = _lexer.PeekNthToken(_lexer.GetReadPos());
-            while (peekToken.TokenType is TokenType.Character && CheckLiteral(peekToken.Literal, matching, c))
+            var peekToken = _peekToken;
+            var word = "";
+
+            while (peekToken.TokenType is TokenType.Character && peekToken.Literal != " ")
             {
-                peekToken = _lexer.PeekNthToken(_lexer.GetReadPos()+(c++));
+                word += peekToken.Literal;
+                peekToken = _lexer.PeekNthToken(_lexer.GetReadPos()+(c));
+                c++;
             }
-            return false;
+
+            if (matching.Contains(word))
+            {
+                return false;
+            }
         }
 
         return true;

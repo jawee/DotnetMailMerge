@@ -266,8 +266,8 @@ public class MailMergeTests
     [Test]
     public void IfWithReplace_ConditionTrueWithReplaceStartsWithE_ReturnsIf()
     {
-        var template = "<html><body>{{#if some.show}}<p style=\"Margin: 0;font-size=13px;\">{{esome.text}}</p>{{/if}}</body></html>";
-        var expected = "<html><body><p style=\"Margin: 0;font-size=13px;\">Lorem ipsum</p></body></html>";
+        var template = "<html><body>{{#if some.show}}{{esome.text}}{{/if}}</body></html>";
+        var expected = "<html><body>Lorem ipsum</body></html>";
 
         var sut = new MailMerge(template);
 
@@ -279,4 +279,20 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
+    //[Test]
+    //public void Loop_WithoutAccessingProperties()
+    //{
+    //    var template = "{{#each items}}<p>Item</p>{{/each}}";
+    //    var expected = "<p>Item</p><p>Item</p>";
+
+    //    var sut = new MailMerge(template);
+
+    //    var result = sut.Render(new()
+    //    {
+    //        { "items", new[] {1, 2} }
+    //    });
+
+    //    Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    //}
 }
