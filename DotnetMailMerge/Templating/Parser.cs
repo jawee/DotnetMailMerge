@@ -126,45 +126,77 @@ public class Parser
         return conditional.Trim();
     }
 
-    private Result<Block> ParseIf()
+    private static readonly string[] _allowedConditionals = new[] { "each", "if" };
+
+    private Result<Block> ParseSomething()
     {
         //if asdf }} consequence {{/if}}
+        //each asdf}} template {{/each}}
         var conditional = ParseConditional();
 
-        if (conditional is not "if")
+        if (!_allowedConditionals.Contains(conditional))
         { 
-            return new UnknownConditionalException($"Conditional was not 'if', was '{conditional}'");
+            return new UnknownConditionalException($"Conditional was not {string.Join(",", _allowedConditionals)}, was '{conditional}'");
         }
 
         NextToken();
 
-        var condition = ParseCondition();
-
-        var consequence = ParseConsequence();
-
-        if (_curToken.TokenType != TokenType.Start)
+        if (conditional is "if")
         {
-            return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
-        }
+            var condition = ParseCondition();
 
-        NextToken();
-        //TODO: Check if it's actual end or {{else}} {{elseif}}
-        var nextConditional = ParseCondition();
+            var consequence = ParseConsequence();
 
-        var alternative = new List<Block>();
-        if (nextConditional is not "/if") 
-        {
-            alternative = nextConditional switch
+            if (_curToken.TokenType != TokenType.Start)
             {
-                "else" => ParseConsequence(),
-                _ => throw new Exception($"'{nextConditional}'"),
-            };
+                return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
+            }
+
+            NextToken();
+            //TODO: Check if it's actual end or {{else}} {{elseif}}
+            var nextConditional = ParseCondition();
+
+            var alternative = new List<Block>();
+            if (nextConditional is not "/if")
+            {
+                alternative = nextConditional switch
+                {
+                    "else" => ParseConsequence(),
+                    _ => throw new Exception($"'{nextConditional}'"),
+                };
+            }
+
+            _ = ParseCondition();
+            NextToken();
+
+            return new IfBlock { Condition = condition.Trim(), Consequence = consequence, Alternative = alternative };
         }
 
-        _ = ParseCondition();
-        NextToken();
+        if (conditional is "each")
+        {
+            var condition = ParseCondition();
+            var consequence = ParseConsequence();
 
-        return new IfBlock { Condition = condition.Trim(), Consequence = consequence , Alternative = alternative };
+            if (_curToken.TokenType != TokenType.Start)
+            {
+                return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
+            }
+
+            NextToken();
+            //TODO: Check if it's actual end or {{else}} {{elseif}}
+            var nextConditional = ParseCondition();
+            if (nextConditional is not "/each")
+            {
+                throw new Exception($"Did not get /each. '{nextConditional}'");
+            }
+
+            NextToken();
+
+            //return new LoopBlock { Condition = condition.Trim(), Consequence = consequence, Alternative = alternative };
+            return new LoopBlock { List = condition, Body = consequence};
+        }
+
+        return new UnknownConditionalException($"Conditional was not {string.Join(",", _allowedConditionals)}, was '{conditional}'");
     }
 
     private string ParseCondition()
@@ -199,7 +231,7 @@ public class Parser
         NextToken();
         Result<Block> result = _curToken.Literal switch
         {
-            "#" => ParseIf(),
+            "#" => ParseSomething(),
             _ => ParseReplacement()
         };
 
@@ -265,6 +297,12 @@ public class IfBlock : Block
     {
         return HashCode.Combine(Condition, Consequence, Alternative);
     }
+}
+
+public class LoopBlock : Block
+{ 
+    public string List { get; set; } = default!;
+    public List<Block> Body { get; set; } = default!;
 }
 
 public class MdReplaceBlock : Block

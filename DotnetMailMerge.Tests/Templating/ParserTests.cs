@@ -312,6 +312,28 @@ public class ParserTests
         Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
     }
 
+    [Test]
+    public void TestParseLoop()
+    {
+        var input = "{{#each items}}<p>Item</p>{{/each}}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var loopBlock = ast.Blocks.First() as LoopBlock;
+
+        Assert.That(loopBlock, Is.Not.Null, "Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(loopBlock.List, Is.EqualTo("items"));
+        Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+
+        var templateBlock = loopBlock.Body.First() as TextBlock;
+        Assert.That(templateBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(templateBlock.Text, Is.EqualTo("<p>Item</p>"));
+    }
+
 
     private static Ast GetAst(string input)
     { 
