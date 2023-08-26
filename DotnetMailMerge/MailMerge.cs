@@ -47,46 +47,70 @@ public class MailMerge
     }
 
     private Result<string> HandleLoopBlock(Block block)
-    { 
+    {
         if (block is not LoopBlock b)
-        { 
+        {
             return new UnknownBlockException("Block isn't LoopBlock");
         }
 
         if (!_parameters.ContainsKey(b.List))
-        { 
+        {
             return new MissingParameterException($"Parameters doesn't contain {b.List}");
         }
 
-        // TODO
-        // [1,2] becomes int[], not object[]
-        if (_parameters[b.List] is not int[] list)
+        if (_parameters[b.List] is object[] objList)
         {
-            return new MissingParameterException($"list is null. {_parameters[b.List]}");
-        }
-
-        var result = "";
-        foreach (var obj in list)
-        { 
-            foreach (var bodyBlock in b.Body)
+            var result = "";
+            foreach (var obj in objList)
             {
-                var blockResult = bodyBlock switch
+                foreach (var bodyBlock in b.Body)
                 {
-                    IfBlock => HandleIfBlock(bodyBlock),
-                    TextBlock => HandleTextBlock(bodyBlock),
-                    ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                    _ => throw new NotImplementedException("unknown block")
-                };
+                    var blockResult = bodyBlock switch
+                    {
+                        IfBlock => HandleIfBlock(bodyBlock),
+                        TextBlock => HandleTextBlock(bodyBlock),
+                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
+                        _ => throw new NotImplementedException("unknown block")
+                    };
 
-                if (blockResult.IsError)
-                {
-                    return blockResult.GetError();
+                    if (blockResult.IsError)
+                    {
+                        return blockResult.GetError();
+                    }
+
+                    result += blockResult.GetValue();
                 }
-
-                result += blockResult.GetValue();
             }
+            return result;
         }
-        return result;
+
+        if (_parameters[b.List] is int[] list)
+        {
+            var result = "";
+            foreach (var obj in list)
+            {
+                foreach (var bodyBlock in b.Body)
+                {
+                    var blockResult = bodyBlock switch
+                    {
+                        IfBlock => HandleIfBlock(bodyBlock),
+                        TextBlock => HandleTextBlock(bodyBlock),
+                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
+                        _ => throw new NotImplementedException("unknown block")
+                    };
+
+                    if (blockResult.IsError)
+                    {
+                        return blockResult.GetError();
+                    }
+
+                    result += blockResult.GetValue();
+                }
+            }
+            return result;
+        }
+
+        return new MissingParameterException($"list is null. {_parameters[b.List]}");
     }
 
     private Result<string> HandleReplaceBlockLoop(Block block, object val)
