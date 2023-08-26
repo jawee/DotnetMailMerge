@@ -60,7 +60,7 @@ public class MailMerge
 
         // TODO
         // [1,2] becomes int[], not object[]
-        if (_parameters[b.List] is not object[] list)
+        if (_parameters[b.List] is not int[] list)
         {
             return new MissingParameterException($"list is null. {_parameters[b.List]}");
         }
@@ -85,7 +85,6 @@ public class MailMerge
 
                 result += blockResult.GetValue();
             }
-            result += b.Body;
         }
         return result;
     }
