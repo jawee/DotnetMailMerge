@@ -322,7 +322,23 @@ public class MailMergeTests
 
         var result = sut.Render(new()
         {
-            { "items", new object[] { new { A = 1}, new { A = 2 } } }
+            { "items", new object[] { new { A = 1 }, new { A = 2 } } }
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Loop_ListOfObject_AccessingProperties()
+    {
+        var template = "{{#each items}}<p>{{this.A}}}</p>{{/each}}";
+        var expected = "<p>1</p><p>2</p>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "items", new object[] { new { A = 1 }, new { A = 2 } } }
         });
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
