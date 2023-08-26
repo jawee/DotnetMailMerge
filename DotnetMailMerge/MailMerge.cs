@@ -147,12 +147,20 @@ public class MailMerge
                 res = newVal.ToString();
             }
         }
+        else
+        {
+            if (!_parameters.ContainsKey(b.Property))
+            {
+                return new MissingParameterException($"Parameters doesn't contain {b.Property}");
+            }
+            res = _parameters[b.Property].ToString();
 
-        //TODO: handle regular replaces, not just this
-        //if (b.Property is not "this")
-        //{
-        //    return new NotImplementedException("ReplaceBlock in loop can only handle this.");
-        //}
+            if (res is null)
+            {
+                return new MissingParameterException($"Parameters doesn't contain {b.Property}");
+            }
+        }
+
 
         return res;
     }
@@ -160,7 +168,7 @@ public class MailMerge
     private Result<string> HandleMdReplaceBlock(Block block)
     {
         if (block is not MdReplaceBlock b)
-        { 
+        {
             return new UnknownBlockException("Block isn't MdReplaceBlock");
         }
 
@@ -172,7 +180,7 @@ public class MailMerge
         var content = _parameters[b.Content];
 
         if (content is null)
-        { 
+        {
             return new MissingParameterException($"Parameters doesn't contain {b.Content}");
         }
 
@@ -203,7 +211,7 @@ public class MailMerge
         var res = _parameters[b.Property];
 
         if (res is null)
-        { 
+        {
             return new MissingParameterException($"Parameters doesn't contain {b.Property}");
         }
 
