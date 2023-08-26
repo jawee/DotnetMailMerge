@@ -12,7 +12,7 @@ public class MailMerge
         _parser = new(new(template));
     }
 
-    public Result<string, Exception> Render(Dictionary<string, object> parameters) 
+    public Result<string, Exception> Render(Dictionary<string, object> parameters)
     {
         _parameters = parameters;
         var parseResult = _parser.Parse();
@@ -113,21 +113,48 @@ public class MailMerge
         return new MissingParameterException($"list is null. {_parameters[b.List]}");
     }
 
+    //{ A = 2 }
     private Result<string> HandleReplaceBlockLoop(Block block, object val)
     {
+        var res = "";
         if (block is not ReplaceBlock b)
         {
             return new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
-        if (b.Property is not "this")
+        if (b.Property.Contains("this"))
         {
-            return new NotImplementedException("ReplaceBlock in loop can only handle this.");
+            if (b.Property is "this")
+            {
+                res = val.ToString();
+            }
+
+            if (b.Property.StartsWith("this."))
+            {
+                var propName = b.Property.Replace("this.", "");
+                var prop = val.GetType().GetProperty(propName);
+                if (prop is null)
+                {
+                    throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                }
+
+                var newVal = prop.GetValue(val, null);
+
+                if (newVal is null)
+                {
+                    throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                }
+                res = newVal.ToString();
+            }
         }
 
-        var res = val;
+        //TODO: handle regular replaces, not just this
+        //if (b.Property is not "this")
+        //{
+        //    return new NotImplementedException("ReplaceBlock in loop can only handle this.");
+        //}
 
-        return res.ToString();
+        return res;
     }
 
     private Result<string> HandleMdReplaceBlock(Block block)

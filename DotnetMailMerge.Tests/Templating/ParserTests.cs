@@ -350,6 +350,28 @@ public class ParserTests
         Assert.That(replaceBlock.Property, Is.EqualTo("this.A"));
     }
 
+    [Test]
+    public void TestParseLoopWithThisReplace()
+    {
+        var input = "{{#each items}}{{this.A}}{{/each}}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var loopBlock = ast.Blocks.First() as LoopBlock;
+
+        Assert.That(loopBlock, Is.Not.Null, "Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(loopBlock.List, Is.EqualTo("items"));
+        Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+
+        var replaceBlock = loopBlock.Body.First() as ReplaceBlock;
+        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock.Property, Is.EqualTo("this.A"));
+    }
+
 
     private static Ast GetAst(string input)
     { 

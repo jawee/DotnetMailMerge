@@ -331,7 +331,7 @@ public class MailMergeTests
     [Test]
     public void Loop_ListOfObject_AccessingProperties()
     {
-        var template = "{{#each items}}<p>{{this.A}}}</p>{{/each}}";
+        var template = "{{#each items}}<p>{{this.A}}</p>{{/each}}";
         var expected = "<p>1</p><p>2</p>";
 
         var sut = new MailMerge(template);
