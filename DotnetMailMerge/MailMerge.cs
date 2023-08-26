@@ -31,6 +31,7 @@ public class MailMerge
                 TextBlock => HandleTextBlock(block),
                 ReplaceBlock => HandleReplaceBlock(block),
                 MdReplaceBlock => HandleMdReplaceBlock(block),
+                LoopBlock => HandleLoopBlock(block),
                 _ => throw new NotImplementedException("unknown block")
             };
 
@@ -43,6 +44,50 @@ public class MailMerge
         }
 
         return res;
+    }
+
+    private Result<string> HandleLoopBlock(Block block)
+    { 
+        if (block is not LoopBlock b)
+        { 
+            return new UnknownBlockException("Block isn't LoopBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.List))
+        { 
+            return new MissingParameterException($"Parameters doesn't contain {b.List}");
+        }
+
+        // TODO
+        // [1,2] becomes int[], not object[]
+        if (_parameters[b.List] is not object[] list)
+        {
+            return new MissingParameterException($"list is null. {_parameters[b.List]}");
+        }
+
+        var result = "";
+        foreach (var obj in list)
+        { 
+            foreach (var bodyBlock in b.Body)
+            {
+                var blockResult = bodyBlock switch
+                {
+                    IfBlock => HandleIfBlock(bodyBlock),
+                    TextBlock => HandleTextBlock(bodyBlock),
+                    ReplaceBlock => HandleReplaceBlock(bodyBlock),
+                    _ => throw new NotImplementedException("unknown block")
+                };
+
+                if (blockResult.IsError)
+                {
+                    return blockResult.GetError();
+                }
+
+                result += blockResult.GetValue();
+            }
+            result += b.Body;
+        }
+        return result;
     }
 
     private Result<string> HandleMdReplaceBlock(Block block)

@@ -280,19 +280,19 @@ public class MailMergeTests
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
 
-    //[Test]
-    //public void Loop_WithoutAccessingProperties()
-    //{
-    //    var template = "{{#each items}}<p>Item</p>{{/each}}";
-    //    var expected = "<p>Item</p><p>Item</p>";
+    [Test]
+    public void Loop_WithoutAccessingProperties()
+    {
+        var template = "{{#each items}}<p>Item</p>{{/each}}";
+        var expected = "<p>Item</p><p>Item</p>";
 
-    //    var sut = new MailMerge(template);
+        var sut = new MailMerge(template);
 
-    //    var result = sut.Render(new()
-    //    {
-    //        { "items", new[] {1, 2} }
-    //    });
+        var result = sut.Render(new()
+        {
+            { "items", new int[] {1, 2} }
+        });
 
-    //    Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    //}
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
 }
