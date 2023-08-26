@@ -281,10 +281,26 @@ public class MailMergeTests
     }
 
     [Test]
-    public void Loop_WithoutAccessingProperties()
+    public void Loop_ListOfInts_WithoutAccessingProperties()
     {
         var template = "{{#each items}}<p>Item</p>{{/each}}";
         var expected = "<p>Item</p><p>Item</p>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "items", new int[] {1, 2} }
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Loop_ListOfInts_AccessingValue()
+    {
+        var template = "{{#each items}}<p>{{this}}</p>{{/each}}";
+        var expected = "<p>1</p><p>2</p>";
 
         var sut = new MailMerge(template);
 

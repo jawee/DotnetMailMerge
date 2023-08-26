@@ -74,7 +74,7 @@ public class MailMerge
                 {
                     IfBlock => HandleIfBlock(bodyBlock),
                     TextBlock => HandleTextBlock(bodyBlock),
-                    ReplaceBlock => HandleReplaceBlock(bodyBlock),
+                    ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
                     _ => throw new NotImplementedException("unknown block")
                 };
 
@@ -87,6 +87,23 @@ public class MailMerge
             }
         }
         return result;
+    }
+
+    private Result<string> HandleReplaceBlockLoop(Block block, object val)
+    {
+        if (block is not ReplaceBlock b)
+        {
+            return new UnknownBlockException("Block isn't ReplaceBlock");
+        }
+
+        if (b.Property is not "this")
+        {
+            return new NotImplementedException("ReplaceBlock in loop can only handle this.");
+        }
+
+        var res = val;
+
+        return res.ToString();
     }
 
     private Result<string> HandleMdReplaceBlock(Block block)
