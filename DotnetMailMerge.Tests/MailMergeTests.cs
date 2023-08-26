@@ -343,4 +343,21 @@ public class MailMergeTests
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
+    [Test]
+    public void Loop_ListOfObject_WithRegularReplace()
+    {
+        var template = "{{#each items}}<p>{{text}}</p>{{/each}}";
+        var expected = "<p>text</p><p>text</p>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "items", new object[] { new { A = 1 }, new { A = 2 } } },
+            { "text", "text" },
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
 }
