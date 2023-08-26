@@ -334,6 +334,22 @@ public class ParserTests
         Assert.That(templateBlock.Text, Is.EqualTo("<p>Item</p>"));
     }
 
+    [Test]
+    public void TestParseReplaceWithThis()
+    {
+        var input = "{{ this.A }}";
+        var ast = GetAst(input);
+
+        if (ast.Blocks.Count != 1)
+        {
+            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+        }
+
+        var replaceBlock = ast.Blocks.First() as ReplaceBlock;
+        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock.Property, Is.EqualTo("this.A"));
+    }
+
 
     private static Ast GetAst(string input)
     { 
