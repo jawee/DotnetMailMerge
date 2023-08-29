@@ -204,11 +204,12 @@ public class MailMerge
             return new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
-        if (!_parameters.ContainsKey(b.Property))
+        var res = b.Property switch
         {
-            return new MissingParameterException($"Parameters doesn't contain {b.Property}");
-        }
-        var res = _parameters[b.Property];
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        };
 
         if (res is null)
         {
@@ -216,6 +217,24 @@ public class MailMerge
         }
 
         return res.ToString();
+    }
+
+    private object GetObjectParameter(string key)
+    {
+        var listOfParams = key.Split(".");
+        if (_parameters.ContainsKey(listOfParams.First()))
+        {
+            if (_parameters[listOfParams.First()] is not Dictionary<string, object> objectDictionary)
+            {
+                return new MissingParameterException($"Obj {listOfParams.First()} is not a dictionary");
+            }
+
+            if (objectDictionary.ContainsKey(listOfParams.Last()))
+            {
+                return objectDictionary[listOfParams.Last()];
+            }
+        }
+        return new MissingParameterException($"Parameters doesn't contain {key}");
     }
 
     private Result<string> HandleTextBlock(Block block)
