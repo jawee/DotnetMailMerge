@@ -2,6 +2,7 @@
 using DotnetMailMerge.Exceptions;
 using System;
 using DotnetMailMerge.Templating;
+using System.Collections.Generic;
 
 namespace DotnetMailMerge.Tests;
 
@@ -309,6 +310,23 @@ public class MailMergeTests
             { "items", new int[] {1, 2} }
         });
 
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ReplaceFromObjectProperty()
+    {
+        var template = "{{ someobj.someprop }}";
+        var expected = "test";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "someobj", new Dictionary<string, object>() {
+                { "someprop", "test" }
+                }
+            }});
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
 
