@@ -331,6 +331,23 @@ public class MailMergeTests
     }
 
     [Test]
+    public void ReplaceMdFromObjectProperty()
+    {
+        var template = "{{{ someobj.someprop }}}";
+        var expected = "test";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "someobj", new Dictionary<string, object>() {
+                { "someprop", "test" }
+                }
+            }});
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
     public void Loop_ListOfObject_WithoutAccessingProperties()
     {
         var template = "{{#each items}}<p>Item</p>{{/each}}";
