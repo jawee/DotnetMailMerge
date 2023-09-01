@@ -267,6 +267,8 @@ public class MailMerge
         {
             bool => (bool)param,
             string => ((string)param).Length != 0,
+            //TODO: shouldn't always be true. Handle properly
+            JsonElement => true,
             _ => null,
         };
 
