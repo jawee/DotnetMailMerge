@@ -169,15 +169,15 @@ public class MailMerge
     {
         if (block is not MdReplaceBlock b)
         {
-            return new UnknownBlockException("Block isn't MdReplaceBlock");
+            return new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
-        if (!_parameters.ContainsKey(b.Content))
+        var content = b.Content switch
         {
-            return new MissingParameterException($"Parameters doesn't contain {b.Content}");
-        }
-
-        var content = _parameters[b.Content];
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Content.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        };
 
         if (content is null)
         {

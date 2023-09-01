@@ -334,7 +334,7 @@ public class MailMergeTests
     public void ReplaceMdFromObjectProperty()
     {
         var template = "{{{ someobj.someprop }}}";
-        var expected = "test";
+        var expected = "<p>test</p>";
 
         var sut = new MailMerge(template);
 
