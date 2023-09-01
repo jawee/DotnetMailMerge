@@ -1,4 +1,5 @@
 ﻿using DotnetMailMerge.Exceptions;
+using System.Text.Json;
 
 namespace DotnetMailMerge.Templating;
 
@@ -32,7 +33,7 @@ public class MailMerge
                 ReplaceBlock => HandleReplaceBlock(block),
                 MdReplaceBlock => HandleMdReplaceBlock(block),
                 LoopBlock => HandleLoopBlock(block),
-                _ => throw new NotImplementedException("unknown block")
+                _ => throw new NotImplementedException($"unknown block {block.GetType()}")
             };
 
             if (result.IsError)
@@ -70,7 +71,7 @@ public class MailMerge
                         IfBlock => HandleIfBlock(bodyBlock),
                         TextBlock => HandleTextBlock(bodyBlock),
                         ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                        _ => throw new NotImplementedException("unknown block")
+                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
                     };
 
                     if (blockResult.IsError)
@@ -96,7 +97,7 @@ public class MailMerge
                         IfBlock => HandleIfBlock(bodyBlock),
                         TextBlock => HandleTextBlock(bodyBlock),
                         ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                        _ => throw new NotImplementedException("unknown block")
+                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
                     };
 
                     if (blockResult.IsError)
@@ -161,7 +162,6 @@ public class MailMerge
             }
         }
 
-
         return res;
     }
 
@@ -208,12 +208,17 @@ public class MailMerge
         {
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a),
-            _ => null,
+            _ => new MissingParameterException($"Parameters doesn't contain {b.Property}"),
         };
+
+        if (res is MissingParameterException ex)
+        {
+            return ex;
+        }
 
         if (res is null)
         {
-            return new MissingParameterException($"Parameters doesn't contain {b.Property}");
+            return "";
         }
 
         return res.ToString();
@@ -224,6 +229,16 @@ public class MailMerge
         var listOfParams = key.Split(".");
         if (_parameters.ContainsKey(listOfParams.First()))
         {
+            //TODO: this is chaos
+            var param = _parameters[listOfParams.First()];
+            //var dict = (Dictionary<string, object>)param;
+            if (param is JsonElement superParam)
+            {
+                var asdfa = superParam.GetRawText();
+                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(asdfa);
+                return dict[listOfParams.Last()];
+            }
+
             if (_parameters[listOfParams.First()] is not Dictionary<string, object> objectDictionary)
             {
                 return new MissingParameterException($"Obj {listOfParams.First()} is not a dictionary");
@@ -301,7 +316,7 @@ public class MailMerge
                     IfBlock => HandleIfBlock(altBlock),
                     TextBlock => HandleTextBlock(altBlock),
                     ReplaceBlock => HandleReplaceBlock(altBlock),
-                    _ => throw new NotImplementedException("unknown block")
+                    _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
                 };
 
                 if (result.IsError)
@@ -324,7 +339,7 @@ public class MailMerge
                 IfBlock => HandleIfBlock(consB),
                 TextBlock => HandleTextBlock(consB),
                 ReplaceBlock => HandleReplaceBlock(consB),
-                _ => throw new NotImplementedException("unknown block")
+                _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
             };
 
             if (result.IsError)
