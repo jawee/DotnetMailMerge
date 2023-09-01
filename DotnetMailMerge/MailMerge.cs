@@ -341,6 +341,7 @@ public class MailMerge
                 IfBlock => HandleIfBlock(consB),
                 TextBlock => HandleTextBlock(consB),
                 ReplaceBlock => HandleReplaceBlock(consB),
+                MdReplaceBlock => HandleMdReplaceBlock(consB),
                 _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
             };
 
