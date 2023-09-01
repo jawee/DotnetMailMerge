@@ -120,6 +120,21 @@ public class MailMergeTests
     }
 
     [Test]
+    public void If_ObjectProperty_ConditionTrue()
+    {
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if someobj.show}}<p>Extra</p>{{/if}}</body></html>";
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
+
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() {
+            { "title", "Title" },
+            { "someobj", new Dictionary<string, object> { { "show", true } } },
+         });
+
+        Assert.That(result.Match(success => success, err => err.ToString()), Is.EqualTo(expected));
+    }
+
+    [Test]
     public void If_Simple_ConditionFalse()
     {
         var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
@@ -346,6 +361,7 @@ public class MailMergeTests
             }});
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
+
 
     [Test]
     public void Loop_ListOfObject_WithoutAccessingProperties()

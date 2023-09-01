@@ -246,15 +246,8 @@ public class MailMerge
         return b.Text;
     }
 
-    private Result<bool> EvaluateCondition(string conditionKey)
+    private Result<bool> EvaluateCondition(object param)
     {
-        var param = _parameters[conditionKey];
-
-        if (param is null)
-        {
-            return new MissingParameterException(nameof(conditionKey));
-        }
-
         bool? res = param switch
         {
             bool => (bool)param,
@@ -277,12 +270,19 @@ public class MailMerge
             return new UnknownBlockException("Block isn't TextBlock");
         }
 
-        if (!_parameters.ContainsKey(b.Condition))
+        var res = b.Condition switch
+        {
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        };
+
+        if (res is null)
         {
             return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
         }
 
-        var conditionResult = EvaluateCondition(b.Condition);
+        var conditionResult = EvaluateCondition(res);
 
         if (conditionResult.IsError)
         {
