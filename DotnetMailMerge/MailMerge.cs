@@ -261,14 +261,22 @@ public class MailMerge
         return b.Text;
     }
 
+    private static bool? EvaluateJsonElementCondition(object param)
+    {
+        if (param is not JsonElement je)
+        {
+            return null;
+        }
+
+        return je.GetBoolean();
+    }
     private Result<bool> EvaluateCondition(object param)
     {
         bool? res = param switch
         {
             bool => (bool)param,
             string => ((string)param).Length != 0,
-            //TODO: shouldn't always be true. Handle properly
-            JsonElement => true,
+            JsonElement => EvaluateJsonElementCondition(param),
             _ => null,
         };
 
