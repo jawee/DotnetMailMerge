@@ -333,7 +333,6 @@ public class MailMerge
             return alternative;
         }
 
-
         var consRes = "";
         foreach (var consB in b.Consequence)
         {
