@@ -4,6 +4,7 @@ using System;
 using DotnetMailMerge.Templating;
 using System.Collections.Generic;
 using System.Text.Json;
+using DotnetMailMerge;
 
 namespace DotnetMailMerge.Tests;
 
@@ -404,10 +405,12 @@ public class MailMergeTests
 
         var result = sut.Render(new()
         {
-            { "someobj", new Dictionary<string, object>() {
-                { "someprop", "test" }
+            { "someobj", new Dictionary<string, object>()
+                {
+                    { "someprop", "test" },
                 }
-            }});
+            }
+        });
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
     }
 
@@ -459,5 +462,38 @@ public class MailMergeTests
         });
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Loop_ListOfObject_WithIf()
+    {
+        var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
+        var expected = "<p>text</p>";
+
+        var sut = new MailMerge(template);
+
+        var result = sut.Render(new()
+        {
+            { "items", new object[] { new { Show = true, A = 1 }, new { Show = false, A = 2 } } },
+        });
+
+        Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void LoopWithIf_JsonElement_ObjectProperty_ConditionFalse()
+    {
+        var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
+        var expected = "<p>text</p>";
+
+        var showJson = @"[ { ""show"": true } ]";
+
+        var showObj = JsonSerializer.Deserialize<JsonElement>(showJson);
+        var sut = new MailMerge(template);
+        var result = sut.Render(new() {
+            { "items", showObj },
+         });
+
+        Assert.That(result.Match(success => success, err => err.ToString()), Is.EqualTo(expected));
     }
 }

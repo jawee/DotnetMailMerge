@@ -59,6 +59,35 @@ public class MailMerge
             return new MissingParameterException($"Parameters doesn't contain {b.List}");
         }
 
+        if (_parameters[b.List] is JsonElement jsonElement)
+        {
+            var asdfa = jsonElement.GetRawText();
+            var dictList = JsonSerializer.Deserialize<object[]>(asdfa);
+
+            var result = "";
+            foreach (var obj in dictList)
+            {
+                foreach (var bodyBlock in b.Body)
+                {
+                    var blockResult = bodyBlock switch
+                    {
+                        IfBlock => HandleIfBlock(bodyBlock),
+                        TextBlock => HandleTextBlock(bodyBlock),
+                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
+                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
+                    };
+
+                    if (blockResult.IsError)
+                    {
+                        return blockResult.GetError();
+                    }
+
+                    result = blockResult.GetValue();
+                }
+            }
+            return result;
+        }
+
         if (_parameters[b.List] is object[] objList)
         {
             var result = "";
@@ -133,19 +162,43 @@ public class MailMerge
             if (b.Property.StartsWith("this."))
             {
                 var propName = b.Property.Replace("this.", "");
-                var prop = val.GetType().GetProperty(propName);
-                if (prop is null)
+                if (val is JsonElement jsonElement)
                 {
-                    throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonElement.GetRawText());
+
+                    if (dict is null)
+                    {
+                        throw new MissingParameterException($"Couldn't deserialize JsonElement as dict");
+                    }
+                    if (!dict.ContainsKey(propName))
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+
+                    var newVal = dict[propName];
+                    if (newVal is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+                    res = newVal.ToString();
                 }
-
-                var newVal = prop.GetValue(val, null);
-
-                if (newVal is null)
+                else
                 {
-                    throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+
+                    var prop = val.GetType().GetProperty(propName);
+                    if (prop is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+
+                    var newVal = prop.GetValue(val, null);
+
+                    if (newVal is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+                    res = newVal.ToString();
                 }
-                res = newVal.ToString();
             }
         }
         else
