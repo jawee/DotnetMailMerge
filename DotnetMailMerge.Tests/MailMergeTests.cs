@@ -474,7 +474,7 @@ public class MailMergeTests
 
         var result = sut.Render(new()
         {
-            { "items", new object[] { new { Show = true, A = 1 }, new { Show = false, A = 2 } } },
+            { "items", new object[] { new { show = true, A = 1 }, new { show = false, A = 2 } } },
         });
 
         Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));

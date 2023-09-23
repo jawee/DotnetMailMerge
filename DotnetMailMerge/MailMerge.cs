@@ -71,7 +71,7 @@ public class MailMerge
                 {
                     var blockResult = bodyBlock switch
                     {
-                        IfBlock => HandleIfBlock(bodyBlock),
+                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
                         TextBlock => HandleTextBlock(bodyBlock),
                         ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
                         _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
@@ -97,7 +97,7 @@ public class MailMerge
                 {
                     var blockResult = bodyBlock switch
                     {
-                        IfBlock => HandleIfBlock(bodyBlock),
+                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
                         TextBlock => HandleTextBlock(bodyBlock),
                         ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
                         _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
@@ -123,7 +123,7 @@ public class MailMerge
                 {
                     var blockResult = bodyBlock switch
                     {
-                        IfBlock => HandleIfBlock(bodyBlock),
+                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
                         TextBlock => HandleTextBlock(bodyBlock),
                         ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
                         _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
@@ -141,6 +141,83 @@ public class MailMerge
         }
 
         return new MissingParameterException($"list is null. {_parameters[b.List]}");
+    }
+    private Result<string> HandleIfBlockLoop(Block block, object obj)
+    {
+        if (block is not IfBlock b)
+        {
+            return new UnknownBlockException("Block isn't IfBlock");
+        }
+
+
+        var res = b.Condition switch
+        {
+            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.") => GetObjectParameter(a, obj),
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        }; ;
+
+        if (res is null)
+        {
+            return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
+        }
+
+        var conditionResult = EvaluateCondition(res);
+
+        if (conditionResult.IsError)
+        {
+            return new ConditionException(conditionResult.GetError().Message);
+        }
+
+        var condition = conditionResult.GetValue();
+
+        if (!condition)
+        {
+            var alternative = "";
+            foreach (var altBlock in b.Alternative)
+            {
+                var result = altBlock switch
+                {
+                    IfBlock => HandleIfBlock(altBlock),
+                    TextBlock => HandleTextBlock(altBlock),
+                    ReplaceBlock => HandleReplaceBlock(altBlock),
+                    MdReplaceBlock => HandleMdReplaceBlock(altBlock),
+                    _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
+                };
+
+                if (result.IsError)
+                {
+                    return result.GetError();
+                }
+
+                alternative += result.GetValue();
+            }
+
+            return alternative;
+        }
+
+        var consRes = "";
+        foreach (var consB in b.Consequence)
+        {
+            var result = consB switch
+            {
+                IfBlock => HandleIfBlock(consB),
+                TextBlock => HandleTextBlock(consB),
+                ReplaceBlock => HandleReplaceBlock(consB),
+                MdReplaceBlock => HandleMdReplaceBlock(consB),
+                _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
+            };
+
+            if (result.IsError)
+            {
+                return result.GetError();
+            }
+
+            consRes += result.GetValue();
+        }
+
+        return consRes;
     }
 
     //{ A = 2 }
@@ -277,6 +354,60 @@ public class MailMerge
         return res.ToString();
     }
 
+    private static object? GetObjectParameter(string key, object obj)
+    {
+        if (key.Contains("this"))
+        {
+            if (key is "this")
+            {
+                return obj;
+            }
+
+            if (key.StartsWith("this."))
+            {
+                var propName = key.Replace("this.", "");
+                if (obj is JsonElement jsonElement)
+                {
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonElement.GetRawText());
+
+                    if (dict is null)
+                    {
+                        throw new MissingParameterException($"Couldn't deserialize JsonElement as dict");
+                    }
+                    if (!dict.ContainsKey(propName))
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+
+                    var newVal = dict[propName];
+                    if (newVal is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+                    return newVal;
+                }
+                else
+                {
+
+                    var prop = obj.GetType().GetProperty(propName);
+                    if (prop is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+
+                    var newVal = prop.GetValue(obj, null);
+
+                    if (newVal is null)
+                    {
+                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
+                    }
+                    return newVal;
+                }
+            }
+        }
+
+        return null;
+    }
     private object GetObjectParameter(string key)
     {
         var listOfParams = key.Split(".");
@@ -345,7 +476,7 @@ public class MailMerge
     {
         if (block is not IfBlock b)
         {
-            return new UnknownBlockException("Block isn't TextBlock");
+            return new UnknownBlockException("Block isn't IfBlock");
         }
 
         var res = b.Condition switch
