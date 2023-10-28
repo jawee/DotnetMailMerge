@@ -83,7 +83,7 @@ public class MailMerge
                         return blockResult.GetError();
                     }
 
-                    result = blockResult.GetValue();
+                    result += blockResult.GetValue();
                 }
             }
             return result;

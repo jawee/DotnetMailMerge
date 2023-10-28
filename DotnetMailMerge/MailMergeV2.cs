@@ -150,14 +150,134 @@ public class MailMergeV2
 
     private string HandleLoopBlock(Block block)
     {
-        throw new NotImplementedException();
+        if (block is not LoopBlock b)
+        {
+            throw new UnknownBlockException("Block isn't LoopBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.List))
+        {
+            throw new MissingParameterException($"Parameters doesn't contain {b.List}");
+        }
+
+        var result = "";
+        if (_parameters[b.List] is JsonArray jsonArray)
+        {
+            foreach (var node in jsonArray)
+            {
+                foreach (var bodyBlock in b.Body)
+                {
+                    var blockResult = bodyBlock switch
+                    {
+                        IfBlock => HandleIfBlockLoop(bodyBlock, node),
+                        TextBlock => HandleTextBlock(bodyBlock),
+                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, node),
+                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
+                    };
+
+                    result += blockResult;
+                }
+            }
+            return result;
+        }
+
+        throw new MissingParameterException($"list is null. {_parameters[b.List]}");
     }
 
-    private string HandleMdReplaceBlock(Block block)
+    private string HandleReplaceBlockLoop(Block block, JsonNode? node)
+    {
+        if (block is not ReplaceBlock b)
+        {
+            throw new UnknownBlockException("Block isn't ReplaceBlock");
+        }
+
+        if (b.Property is "this")
+        {
+            return node.ToString();
+        }
+
+        var res = b.Property switch
+        {
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a, node),
+            _ => throw new MissingParameterException($"Parameters doesn't contain {b.Property}"),
+        };
+
+        if (res is null)
+        {
+            return "";
+        }
+
+        return res.ToString();
+
+
+    }
+
+    private JsonNode? GetObjectParameter(string key, JsonNode? node)
+    {
+        if (node is null)
+        {
+            throw new MissingParameterException("Missing node in GetObjectParameter for loop");
+        }
+
+        var listOfParams = key.Split(".");
+        if (node is JsonObject nodeObj && nodeObj.ContainsKey(listOfParams.First()))
+        {
+            if (nodeObj[listOfParams.First()] is not JsonObject obj)
+            {
+                throw new MissingParameterException($"Obj {listOfParams.First()} is not a JsonObject");
+            }
+
+            if (obj.ContainsKey(listOfParams.Last()))
+            {
+                var condition = obj[listOfParams.Last()];
+                return condition;
+            }
+        }
+        throw new MissingParameterException($"Parameters doesn't contain {key}");
+    }
+    private string HandleIfBlockLoop(Block bodyBlock, JsonNode? node)
     {
         throw new NotImplementedException();
     }
 
+
+    private string HandleMdReplaceBlock(Block block)
+    {
+        if (block is not MdReplaceBlock b)
+        {
+            throw new UnknownBlockException("Block isn't ReplaceBlock");
+        }
+
+        var content = b.Content switch
+        {
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Content.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        };
+
+        if (content is null)
+        {
+            throw new MissingParameterException($"Parameters doesn't contain {b.Content}");
+        }
+
+        var res = GetHtmlFromMarkdown(content);
+
+        return res;
+    }
+
+    private static string GetHtmlFromMarkdown(JsonNode node)
+    {
+        var couldParse = node.AsValue().TryGetValue<string>(out var content);
+        if (!couldParse || content is null)
+        {
+            throw new Exception("Couldn't get content for Markdown");
+        }
+        var lexer = new Markdown.Lexer(content);
+        var parser = new Markdown.Parser(lexer);
+        var renderer = new Markdown.Renderer(parser);
+        return renderer.Render();
+    }
     private string HandleReplaceBlock(Block block)
     {
         if (block is not ReplaceBlock b)
@@ -168,7 +288,7 @@ public class MailMergeV2
         var res = b.Property switch
         {
             var a when _parameters.ContainsKey(a) => _parameters[a],
-            // var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a),
+            var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a),
             _ => throw new MissingParameterException($"Parameters doesn't contain {b.Property}"),
         };
 
