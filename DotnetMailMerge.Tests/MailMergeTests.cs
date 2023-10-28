@@ -326,6 +326,11 @@ public class MailMergeTests
 
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -346,6 +351,11 @@ public class MailMergeTests
 
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -363,6 +373,11 @@ public class MailMergeTests
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
 
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -380,6 +395,11 @@ public class MailMergeTests
             ""items"": [1,2]
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -397,6 +417,11 @@ public class MailMergeTests
             ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -414,6 +439,11 @@ public class MailMergeTests
             ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -432,6 +462,11 @@ public class MailMergeTests
             ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -449,6 +484,11 @@ public class MailMergeTests
             ""items"": [{ ""show"": true, ""A"": 1 }, { ""show"": false, ""A"": 2 }]
         }";
         var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        if (jsonObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(jsonObj);
 
         Assert.That(result, Is.EqualTo(expected));
@@ -466,6 +506,11 @@ public class MailMergeTests
             ""items"": [ { ""show"": true } ]
         }";
         var showObj = JsonSerializer.Deserialize<JsonObject>(showJson);
+        if (showObj is null)
+        {
+            Assert.Fail();
+            return;
+        }
         var result = sut.Render(showObj);
 
         Assert.That(result, Is.EqualTo(expected));
