@@ -1,11 +1,13 @@
-﻿using DotnetMailMerge.Exceptions;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using DotnetMailMerge.Exceptions;
+using DotnetMailMerge.Templating;
 
-namespace DotnetMailMerge.Templating;
+namespace DotnetMailMerge;
 
 public class MailMerge
 {
-    private Dictionary<string, object> _parameters = new();
+    private JsonObject _parameters = new();
     private readonly Parser _parser;
 
     public MailMerge(string template)
@@ -13,13 +15,13 @@ public class MailMerge
         _parser = new(new(template));
     }
 
-    public Result<string, Exception> Render(Dictionary<string, object> parameters)
+    public string Render(JsonObject parameters)
     {
         _parameters = parameters;
         var parseResult = _parser.Parse();
         if (parseResult.IsError)
         {
-            return new Exception("Render failed");
+            throw new Exception("Render failed");
         }
         var ast = parseResult.GetValue();
 
@@ -36,141 +38,41 @@ public class MailMerge
                 _ => throw new NotImplementedException($"unknown block {block.GetType()}")
             };
 
-            if (result.IsError)
-            {
-                return result.GetError();
-            }
-
-            res += result.GetValue();
+            res += result;
         }
 
         return res;
     }
 
-    private Result<string> HandleLoopBlock(Block block)
+    private static string HandleTextBlock(Block block)
     {
-        if (block is not LoopBlock b)
+        if (block is not TextBlock b)
         {
-            return new UnknownBlockException("Block isn't LoopBlock");
+            throw new UnknownBlockException("Block isn't TextBlock");
         }
-
-        if (!_parameters.ContainsKey(b.List))
-        {
-            return new MissingParameterException($"Parameters doesn't contain {b.List}");
-        }
-
-        if (_parameters[b.List] is JsonElement jsonElement)
-        {
-            var asdfa = jsonElement.GetRawText();
-            var dictList = JsonSerializer.Deserialize<object[]>(asdfa);
-
-            var result = "";
-            foreach (var obj in dictList)
-            {
-                foreach (var bodyBlock in b.Body)
-                {
-                    var blockResult = bodyBlock switch
-                    {
-                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
-                        TextBlock => HandleTextBlock(bodyBlock),
-                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
-                    };
-
-                    if (blockResult.IsError)
-                    {
-                        return blockResult.GetError();
-                    }
-
-                    result = blockResult.GetValue();
-                }
-            }
-            return result;
-        }
-
-        if (_parameters[b.List] is object[] objList)
-        {
-            var result = "";
-            foreach (var obj in objList)
-            {
-                foreach (var bodyBlock in b.Body)
-                {
-                    var blockResult = bodyBlock switch
-                    {
-                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
-                        TextBlock => HandleTextBlock(bodyBlock),
-                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
-                    };
-
-                    if (blockResult.IsError)
-                    {
-                        return blockResult.GetError();
-                    }
-
-                    result += blockResult.GetValue();
-                }
-            }
-            return result;
-        }
-
-        if (_parameters[b.List] is int[] list)
-        {
-            var result = "";
-            foreach (var obj in list)
-            {
-                foreach (var bodyBlock in b.Body)
-                {
-                    var blockResult = bodyBlock switch
-                    {
-                        IfBlock => HandleIfBlockLoop(bodyBlock, obj),
-                        TextBlock => HandleTextBlock(bodyBlock),
-                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, obj),
-                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
-                    };
-
-                    if (blockResult.IsError)
-                    {
-                        return blockResult.GetError();
-                    }
-
-                    result += blockResult.GetValue();
-                }
-            }
-            return result;
-        }
-
-        return new MissingParameterException($"list is null. {_parameters[b.List]}");
+        return b.Text;
     }
-    private Result<string> HandleIfBlockLoop(Block block, object obj)
+
+    private string HandleIfBlock(Block block)
     {
         if (block is not IfBlock b)
         {
-            return new UnknownBlockException("Block isn't IfBlock");
+            throw new UnknownBlockException("Block isn't IfBlock");
         }
-
 
         var res = b.Condition switch
         {
-            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.") => GetObjectParameter(a, obj),
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
             _ => null,
-        }; ;
+        };
 
         if (res is null)
         {
-            return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
+            throw new MissingParameterException($"Parameters doesn't contain {b.Condition}");
         }
 
-        var conditionResult = EvaluateCondition(res);
-
-        if (conditionResult.IsError)
-        {
-            return new ConditionException(conditionResult.GetError().Message);
-        }
-
-        var condition = conditionResult.GetValue();
+        var condition = EvaluateCondition(res);
 
         if (!condition)
         {
@@ -186,12 +88,7 @@ public class MailMerge
                     _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
                 };
 
-                if (result.IsError)
-                {
-                    return result.GetError();
-                }
-
-                alternative += result.GetValue();
+                alternative += result;
             }
 
             return alternative;
@@ -209,97 +106,217 @@ public class MailMerge
                 _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
             };
 
-            if (result.IsError)
-            {
-                return result.GetError();
-            }
-
-            consRes += result.GetValue();
+            consRes += result;
         }
 
         return consRes;
     }
 
-    //{ A = 2 }
-    private Result<string> HandleReplaceBlockLoop(Block block, object val)
+    private JsonNode? GetObjectParameter(string key)
     {
-        var res = "";
-        if (block is not ReplaceBlock b)
+        var listOfParams = key.Split(".");
+        if (_parameters.ContainsKey(listOfParams.First()))
         {
-            return new UnknownBlockException("Block isn't ReplaceBlock");
-        }
-
-        if (b.Property.Contains("this"))
-        {
-            if (b.Property is "this")
+            if (_parameters[listOfParams.First()] is not JsonObject obj)
             {
-                res = val.ToString();
+                throw new MissingParameterException($"Obj {listOfParams.First()} is not a JsonObject");
             }
 
-            if (b.Property.StartsWith("this."))
+            if (obj.ContainsKey(listOfParams.Last()))
             {
-                var propName = b.Property.Replace("this.", "");
-                if (val is JsonElement jsonElement)
-                {
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonElement.GetRawText());
-
-                    if (dict is null)
-                    {
-                        throw new MissingParameterException($"Couldn't deserialize JsonElement as dict");
-                    }
-                    if (!dict.ContainsKey(propName))
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-
-                    var newVal = dict[propName];
-                    if (newVal is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-                    res = newVal.ToString();
-                }
-                else
-                {
-
-                    var prop = val.GetType().GetProperty(propName);
-                    if (prop is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-
-                    var newVal = prop.GetValue(val, null);
-
-                    if (newVal is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-                    res = newVal.ToString();
-                }
+                var condition = obj[listOfParams.Last()];
+                return condition;
             }
         }
-        else
-        {
-            if (!_parameters.ContainsKey(b.Property))
-            {
-                return new MissingParameterException($"Parameters doesn't contain {b.Property}");
-            }
-            res = _parameters[b.Property].ToString();
-
-            if (res is null)
-            {
-                return new MissingParameterException($"Parameters doesn't contain {b.Property}");
-            }
-        }
-
-        return res;
+        throw new MissingParameterException($"Parameters doesn't contain {key}");
     }
 
-    private Result<string> HandleMdReplaceBlock(Block block)
+    private static bool EvaluateCondition(JsonNode condition)
+    {
+        var val = condition.AsValue();
+        if (val.TryGetValue<bool>(out var boolRes))
+        {
+            return boolRes;
+        }
+
+        if (val.TryGetValue<string>(out var stringRes))
+        {
+            return !string.IsNullOrEmpty(stringRes);
+        }
+
+        throw new ConditionException($"Couldn't get bool from {condition.GetPath()}");
+    }
+
+
+    private string HandleLoopBlock(Block block)
+    {
+        if (block is not LoopBlock b)
+        {
+            throw new UnknownBlockException("Block isn't LoopBlock");
+        }
+
+        if (!_parameters.ContainsKey(b.List))
+        {
+            throw new MissingParameterException($"Parameters doesn't contain {b.List}");
+        }
+
+        var result = "";
+        if (_parameters[b.List] is JsonArray jsonArray)
+        {
+            foreach (var node in jsonArray)
+            {
+                foreach (var bodyBlock in b.Body)
+                {
+                    var blockResult = bodyBlock switch
+                    {
+                        IfBlock => HandleIfBlockLoop(bodyBlock, node),
+                        TextBlock => HandleTextBlock(bodyBlock),
+                        ReplaceBlock => HandleReplaceBlockLoop(bodyBlock, node),
+                        _ => throw new NotImplementedException($"unknown block {bodyBlock.GetType()}")
+                    };
+
+                    result += blockResult;
+                }
+            }
+            return result;
+        }
+
+        throw new MissingParameterException($"list is null. {_parameters[b.List]}");
+    }
+
+    private string HandleReplaceBlockLoop(Block block, JsonNode? node)
+    {
+        if (block is not ReplaceBlock b)
+        {
+            throw new UnknownBlockException("Block isn't ReplaceBlock");
+        }
+
+        if (node is null)
+        {
+            throw new MissingParameterException("node is null in HandleReplaceBlockLoop");
+        }
+
+        if (b.Property is "this")
+        {
+            return node.ToString();
+        }
+
+        // throw new NotImplementedException("Can only handle 'this' in HandleReplaceBlockLoop");
+        var res = b.Property switch
+        {
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a, node),
+            _ => throw new MissingParameterException($"Parameters doesn't contain {b.Property}"),
+        };
+
+        if (res is null)
+        {
+            return "";
+        }
+
+        return res.ToString();
+
+
+    }
+
+    private JsonNode? GetObjectParameter(string key, JsonNode? node)
+    {
+        if (node is null)
+        {
+            throw new MissingParameterException("Missing node in GetObjectParameter for loop");
+        }
+
+        if (key.StartsWith("this."))
+        {
+            key = key.Replace("this.", "");
+        }
+
+        var listOfParams = key.Split(".");
+        if (node is JsonObject nodeObj && nodeObj.ContainsKey(listOfParams.First()))
+        {
+            if (listOfParams.Count() is 1)
+            {
+                return nodeObj[listOfParams.First()];
+            }
+
+            if (nodeObj[listOfParams.First()] is not JsonObject obj)
+            {
+                throw new MissingParameterException($"Obj {listOfParams.First()} is not a JsonObject");
+            }
+
+            if (obj.ContainsKey(listOfParams.Last()))
+            {
+                var condition = obj[listOfParams.Last()];
+                return condition;
+            }
+        }
+        throw new MissingParameterException($"Parameters doesn't contain {key}");
+    }
+    private string HandleIfBlockLoop(Block block, JsonNode? node)
+    {
+        if (block is not IfBlock b)
+        {
+            throw new UnknownBlockException("Block isn't IfBlock");
+        }
+
+        var res = b.Condition switch
+        {
+            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.") => GetObjectParameter(a, node),
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        }; ;
+
+        if (res is null)
+        {
+            throw new MissingParameterException($"Parameters doesn't contain {b.Condition}");
+        }
+
+        var condition = EvaluateCondition(res);
+
+        if (!condition)
+        {
+            var alternative = "";
+            foreach (var altBlock in b.Alternative)
+            {
+                var result = altBlock switch
+                {
+                    IfBlock => HandleIfBlock(altBlock),
+                    TextBlock => HandleTextBlock(altBlock),
+                    ReplaceBlock => HandleReplaceBlock(altBlock),
+                    MdReplaceBlock => HandleMdReplaceBlock(altBlock),
+                    _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
+                };
+
+                alternative += result;
+            }
+
+            return alternative;
+        }
+
+        var consRes = "";
+        foreach (var consB in b.Consequence)
+        {
+            var result = consB switch
+            {
+                IfBlock => HandleIfBlock(consB),
+                TextBlock => HandleTextBlock(consB),
+                ReplaceBlock => HandleReplaceBlock(consB),
+                MdReplaceBlock => HandleMdReplaceBlock(consB),
+                _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
+            };
+
+            consRes += result;
+        }
+
+        return consRes;
+    }
+
+    private string HandleMdReplaceBlock(Block block)
     {
         if (block is not MdReplaceBlock b)
         {
-            return new UnknownBlockException("Block isn't ReplaceBlock");
+            throw new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
         var content = b.Content switch
@@ -311,40 +328,39 @@ public class MailMerge
 
         if (content is null)
         {
-            return new MissingParameterException($"Parameters doesn't contain {b.Content}");
+            throw new MissingParameterException($"Parameters doesn't contain {b.Content}");
         }
 
-        var res = GetHtmlFromMarkdown(content.ToString());
+        var res = GetHtmlFromMarkdown(content);
 
-        return res.ToString();
+        return res;
     }
 
-    private string GetHtmlFromMarkdown(string content)
+    private static string GetHtmlFromMarkdown(JsonNode node)
     {
+        var couldParse = node.AsValue().TryGetValue<string>(out var content);
+        if (!couldParse || content is null)
+        {
+            throw new Exception("Couldn't get content for Markdown");
+        }
         var lexer = new Markdown.Lexer(content);
         var parser = new Markdown.Parser(lexer);
         var renderer = new Markdown.Renderer(parser);
         return renderer.Render();
     }
-
-    private Result<string> HandleReplaceBlock(Block block)
+    private string HandleReplaceBlock(Block block)
     {
         if (block is not ReplaceBlock b)
         {
-            return new UnknownBlockException("Block isn't ReplaceBlock");
+            throw new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
         var res = b.Property switch
         {
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Property.Contains('.') => GetObjectParameter(a),
-            _ => new MissingParameterException($"Parameters doesn't contain {b.Property}"),
+            _ => throw new MissingParameterException($"Parameters doesn't contain {b.Property}"),
         };
-
-        if (res is MissingParameterException ex)
-        {
-            return ex;
-        }
 
         if (res is null)
         {
@@ -352,200 +368,7 @@ public class MailMerge
         }
 
         return res.ToString();
+
     }
 
-    private static object? GetObjectParameter(string key, object obj)
-    {
-        if (key.Contains("this"))
-        {
-            if (key is "this")
-            {
-                return obj;
-            }
-
-            if (key.StartsWith("this."))
-            {
-                var propName = key.Replace("this.", "");
-                if (obj is JsonElement jsonElement)
-                {
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonElement.GetRawText());
-
-                    if (dict is null)
-                    {
-                        throw new MissingParameterException($"Couldn't deserialize JsonElement as dict");
-                    }
-                    if (!dict.ContainsKey(propName))
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-
-                    var newVal = dict[propName];
-                    if (newVal is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-                    return newVal;
-                }
-                else
-                {
-
-                    var prop = obj.GetType().GetProperty(propName);
-                    if (prop is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-
-                    var newVal = prop.GetValue(obj, null);
-
-                    if (newVal is null)
-                    {
-                        throw new MissingParameterException($"Couldn't find parameter '{propName}' for loop object");
-                    }
-                    return newVal;
-                }
-            }
-        }
-
-        return null;
-    }
-    private object GetObjectParameter(string key)
-    {
-        var listOfParams = key.Split(".");
-        if (_parameters.ContainsKey(listOfParams.First()))
-        {
-            //TODO: this is chaos
-            var param = _parameters[listOfParams.First()];
-            //var dict = (Dictionary<string, object>)param;
-            if (param is JsonElement superParam)
-            {
-                var asdfa = superParam.GetRawText();
-                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(asdfa);
-                return dict[listOfParams.Last()];
-            }
-
-            if (_parameters[listOfParams.First()] is not Dictionary<string, object> objectDictionary)
-            {
-                return new MissingParameterException($"Obj {listOfParams.First()} is not a dictionary");
-            }
-
-            if (objectDictionary.ContainsKey(listOfParams.Last()))
-            {
-                return objectDictionary[listOfParams.Last()];
-            }
-        }
-        return new MissingParameterException($"Parameters doesn't contain {key}");
-    }
-
-    private Result<string> HandleTextBlock(Block block)
-    {
-        if (block is not TextBlock b)
-        {
-            return new UnknownBlockException("Block isn't TextBlock");
-        }
-        return b.Text;
-    }
-
-    private static bool? EvaluateJsonElementCondition(object param)
-    {
-        if (param is not JsonElement je)
-        {
-            return null;
-        }
-
-        return je.GetBoolean();
-    }
-    private Result<bool> EvaluateCondition(object param)
-    {
-        bool? res = param switch
-        {
-            bool => (bool)param,
-            string => ((string)param).Length != 0,
-            JsonElement => EvaluateJsonElementCondition(param),
-            _ => null,
-        };
-
-        if (res is null)
-        {
-            return new NotImplementedException($"Condition of type {param.GetType()} isn't supported.");
-        }
-
-        return res.Value;
-    }
-
-    private Result<string> HandleIfBlock(Block block)
-    {
-        if (block is not IfBlock b)
-        {
-            return new UnknownBlockException("Block isn't IfBlock");
-        }
-
-        var res = b.Condition switch
-        {
-            var a when _parameters.ContainsKey(a) => _parameters[a],
-            var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
-            _ => null,
-        };
-
-        if (res is null)
-        {
-            return new MissingParameterException($"Parameters doesn't contain {b.Condition}");
-        }
-
-        var conditionResult = EvaluateCondition(res);
-
-        if (conditionResult.IsError)
-        {
-            return new ConditionException(conditionResult.GetError().Message);
-        }
-
-        var condition = conditionResult.GetValue();
-
-        if (!condition)
-        {
-            var alternative = "";
-            foreach (var altBlock in b.Alternative)
-            {
-                var result = altBlock switch
-                {
-                    IfBlock => HandleIfBlock(altBlock),
-                    TextBlock => HandleTextBlock(altBlock),
-                    ReplaceBlock => HandleReplaceBlock(altBlock),
-                    MdReplaceBlock => HandleMdReplaceBlock(altBlock),
-                    _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
-                };
-
-                if (result.IsError)
-                {
-                    return result.GetError();
-                }
-
-                alternative += result.GetValue();
-            }
-
-            return alternative;
-        }
-
-        var consRes = "";
-        foreach (var consB in b.Consequence)
-        {
-            var result = consB switch
-            {
-                IfBlock => HandleIfBlock(consB),
-                TextBlock => HandleTextBlock(consB),
-                ReplaceBlock => HandleReplaceBlock(consB),
-                MdReplaceBlock => HandleMdReplaceBlock(consB),
-                _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
-            };
-
-            if (result.IsError)
-            {
-                return result.GetError();
-            }
-
-            consRes += result.GetValue();
-        }
-
-        return consRes;
-    }
 }
-
