@@ -252,11 +252,65 @@ public class MailMergeV2
         }
         throw new MissingParameterException($"Parameters doesn't contain {key}");
     }
-    private string HandleIfBlockLoop(Block bodyBlock, JsonNode? node)
+    private string HandleIfBlockLoop(Block block, JsonNode? node)
     {
-        throw new NotImplementedException();
-    }
+        if (block is not IfBlock b)
+        {
+            throw new UnknownBlockException("Block isn't IfBlock");
+        }
 
+        var res = b.Condition switch
+        {
+            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.") => GetObjectParameter(a, node),
+            var a when _parameters.ContainsKey(a) => _parameters[a],
+            var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
+            _ => null,
+        }; ;
+
+        if (res is null)
+        {
+            throw new MissingParameterException($"Parameters doesn't contain {b.Condition}");
+        }
+
+        var condition = EvaluateCondition(res);
+
+        if (!condition)
+        {
+            var alternative = "";
+            foreach (var altBlock in b.Alternative)
+            {
+                var result = altBlock switch
+                {
+                    IfBlock => HandleIfBlock(altBlock),
+                    TextBlock => HandleTextBlock(altBlock),
+                    ReplaceBlock => HandleReplaceBlock(altBlock),
+                    MdReplaceBlock => HandleMdReplaceBlock(altBlock),
+                    _ => throw new NotImplementedException($"unknown block {altBlock.GetType()}")
+                };
+
+                alternative += result;
+            }
+
+            return alternative;
+        }
+
+        var consRes = "";
+        foreach (var consB in b.Consequence)
+        {
+            var result = consB switch
+            {
+                IfBlock => HandleIfBlock(consB),
+                TextBlock => HandleTextBlock(consB),
+                ReplaceBlock => HandleReplaceBlock(consB),
+                MdReplaceBlock => HandleMdReplaceBlock(consB),
+                _ => throw new NotImplementedException($"unknown block {consB.GetType()}")
+            };
+
+            consRes += result;
+        }
+
+        return consRes;
+    }
 
     private string HandleMdReplaceBlock(Block block)
     {

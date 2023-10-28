@@ -439,36 +439,37 @@ public class MailMergeTestsV2
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    // [Test]
-    // public void Loop_ListOfObject_WithIf()
-    // {
-    //     var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
-    //     var expected = "<p>text</p>";
+    [Test]
+    public void Loop_ListOfObject_WithIf()
+    {
+        var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
+        var expected = "<p>text</p>";
 
-    //     var sut = new MailMergeV2(template);
+        var sut = new MailMergeV2(template);
 
-    //     var result = sut.Render(new()
-    //     {
-    //         { "items", new object[] { new { show = true, A = 1 }, new { show = false, A = 2 } } },
-    //     });
+        var json = @"{
+            ""items"": [{ ""show"": true, ""A"": 1 }, { ""show"": false, ""A"": 2 }]
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
 
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
-    // [Test]
-    // public void LoopWithIf_JsonElement_ObjectProperty_ConditionFalse()
-    // {
-    //     var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
-    //     var expected = "<p>text</p>";
+    [Test]
+    public void LoopWithIf_JsonElement_ObjectProperty_ConditionFalse()
+    {
+        var template = "{{#each items}}{{#if this.show}}<p>text</p>{{/if}}{{/each}}";
+        var expected = "<p>text</p>";
 
-    //     var showJson = @"[ { ""show"": true } ]";
+        var sut = new MailMergeV2(template);
+        var showJson = @"
+        {
+            ""items"": [ { ""show"": true } ]
+        }";
+        var showObj = JsonSerializer.Deserialize<JsonObject>(showJson);
+        var result = sut.Render(showObj);
 
-    //     var showObj = JsonSerializer.Deserialize<JsonElement>(showJson);
-    //     var sut = new MailMergeV2(template);
-    //     var result = sut.Render(new() {
-    //         { "items", showObj },
-    //      });
-
-    //     Assert.That(result.Match(success => success, err => err.ToString()), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 }
