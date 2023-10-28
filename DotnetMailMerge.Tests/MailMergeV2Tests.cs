@@ -421,22 +421,23 @@ public class MailMergeTestsV2
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    // [Test]
-    // public void Loop_ListOfObject_WithRegularReplace()
-    // {
-    //     var template = "{{#each items}}<p>{{text}}</p>{{/each}}";
-    //     var expected = "<p>text</p><p>text</p>";
+    [Test]
+    public void Loop_ListOfObject_WithRegularReplace()
+    {
+        var template = "{{#each items}}<p>{{text}}</p>{{/each}}";
+        var expected = "<p>text</p><p>text</p>";
 
-    //     var sut = new MailMergeV2(template);
+        var sut = new MailMergeV2(template);
 
-    //     var result = sut.Render(new()
-    //     {
-    //         { "items", new object[] { new { A = 1 }, new { A = 2 } } },
-    //         { "text", "text" },
-    //     });
+        var json = @"{
+            ""text"": ""text"",
+            ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
 
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
     // [Test]
     // public void Loop_ListOfObject_WithIf()
