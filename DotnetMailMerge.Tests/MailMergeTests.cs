@@ -5,6 +5,7 @@ using DotnetMailMerge.Templating;
 using System.Collections.Generic;
 using System.Text.Json;
 using DotnetMailMerge;
+using System.Text.Json.Nodes;
 
 namespace DotnetMailMerge.Tests;
 
@@ -13,6 +14,29 @@ public class MailMergeTests
     [SetUp]
     public void Setup()
     {
+    }
+
+    [Test]
+    public void Test()
+    {
+        Dictionary<string, object> obj = new()
+        {
+            {
+                 "items", new object[] { new { show = true, A = 1 }, new { show = false, A = 2 } } 
+            },
+            {
+                "A", "B"
+            },
+            {
+                "IsValid", true
+            }
+        };
+
+        var jsonString = JsonSerializer.Serialize(obj);
+
+        //var jObj = obj as JsonObject;
+        var jNode = JsonNode.Parse(jsonString);
+        var jObj = JsonNode.Parse(jsonString).AsObject();
     }
 
     [Test]

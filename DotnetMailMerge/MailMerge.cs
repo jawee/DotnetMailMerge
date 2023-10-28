@@ -1,7 +1,8 @@
 ﻿using DotnetMailMerge.Exceptions;
+using DotnetMailMerge.Templating;
 using System.Text.Json;
 
-namespace DotnetMailMerge.Templating;
+namespace DotnetMailMerge;
 
 public class MailMerge
 {
