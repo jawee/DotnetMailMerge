@@ -191,11 +191,17 @@ public class MailMergeV2
             throw new UnknownBlockException("Block isn't ReplaceBlock");
         }
 
+        if (node is null)
+        {
+            throw new MissingParameterException("node is null in HandleReplaceBlockLoop");
+        }
+
         if (b.Property is "this")
         {
             return node.ToString();
         }
 
+        // throw new NotImplementedException("Can only handle 'this' in HandleReplaceBlockLoop");
         var res = b.Property switch
         {
             var a when _parameters.ContainsKey(a) => _parameters[a],
@@ -220,9 +226,19 @@ public class MailMergeV2
             throw new MissingParameterException("Missing node in GetObjectParameter for loop");
         }
 
+        if (key.StartsWith("this."))
+        {
+            key = key.Replace("this.", "");
+        }
+
         var listOfParams = key.Split(".");
         if (node is JsonObject nodeObj && nodeObj.ContainsKey(listOfParams.First()))
         {
+            if (listOfParams.Count() is 1)
+            {
+                return nodeObj[listOfParams.First()];
+            }
+
             if (nodeObj[listOfParams.First()] is not JsonObject obj)
             {
                 throw new MissingParameterException($"Obj {listOfParams.First()} is not a JsonObject");

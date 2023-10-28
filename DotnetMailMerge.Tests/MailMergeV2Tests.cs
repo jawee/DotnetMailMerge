@@ -312,6 +312,45 @@ public class MailMergeTestsV2
         Assert.That(result, Is.EqualTo(expected));
     }
 
+    [Test]
+    public void ReplaceFromObjectProperty()
+    {
+        var template = "{{ someobj.someprop }}";
+        var expected = "test";
+
+        var sut = new MailMergeV2(template);
+
+        var json = @"
+        {
+            ""someobj"": {
+                ""someprop"": ""test""
+            }
+
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ReplaceMdFromObjectProperty()
+    {
+        var template = "{{{ someobj.someprop }}}";
+        var expected = "<p>test</p>";
+
+        var sut = new MailMergeV2(template);
+
+        var json = @"
+        {
+            ""someobj"": {
+                ""someprop"": ""test""
+            }
+
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
     [Test]
     public void Loop_ListOfInts_WithoutAccessingValue()
@@ -348,74 +387,39 @@ public class MailMergeTestsV2
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    // [Test]
-    // public void ReplaceFromObjectProperty()
-    // {
-    //     var template = "{{ someobj.someprop }}";
-    //     var expected = "test";
+    [Test]
+    public void Loop_ListOfObject_WithoutAccessingProperties()
+    {
+        var template = "{{#each items}}<p>Item</p>{{/each}}";
+        var expected = "<p>Item</p><p>Item</p>";
 
-    //     var sut = new MailMergeV2(template);
+        var sut = new MailMergeV2(template);
 
-    //     var result = sut.Render(new()
-    //     {
-    //         { "someobj", new Dictionary<string, object>() {
-    //             { "someprop", "test" }
-    //             }
-    //         }});
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        var json = @"{
+            ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
 
-    // [Test]
-    // public void ReplaceMdFromObjectProperty()
-    // {
-    //     var template = "{{{ someobj.someprop }}}";
-    //     var expected = "<p>test</p>";
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
-    //     var sut = new MailMergeV2(template);
+    [Test]
+    public void Loop_ListOfObject_AccessingProperties()
+    {
+        var template = "{{#each items}}<p>{{this.A}}</p>{{/each}}";
+        var expected = "<p>1</p><p>2</p>";
 
-    //     var result = sut.Render(new()
-    //     {
-    //         { "someobj", new Dictionary<string, object>()
-    //             {
-    //                 { "someprop", "test" },
-    //             }
-    //         }
-    //     });
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        var sut = new MailMergeV2(template);
 
+        var json = @"{
+            ""items"": [{ ""A"": 1 }, { ""A"": 2 }]
+        }";
+        var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+        var result = sut.Render(jsonObj);
 
-    // [Test]
-    // public void Loop_ListOfObject_WithoutAccessingProperties()
-    // {
-    //     var template = "{{#each items}}<p>Item</p>{{/each}}";
-    //     var expected = "<p>Item</p><p>Item</p>";
-
-    //     var sut = new MailMergeV2(template);
-
-    //     var result = sut.Render(new()
-    //     {
-    //         { "items", new object[] { new { A = 1 }, new { A = 2 } } }
-    //     });
-
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
-
-    // [Test]
-    // public void Loop_ListOfObject_AccessingProperties()
-    // {
-    //     var template = "{{#each items}}<p>{{this.A}}</p>{{/each}}";
-    //     var expected = "<p>1</p><p>2</p>";
-
-    //     var sut = new MailMergeV2(template);
-
-    //     var result = sut.Render(new()
-    //     {
-    //         { "items", new object[] { new { A = 1 }, new { A = 2 } } }
-    //     });
-
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
     // [Test]
     // public void Loop_ListOfObject_WithRegularReplace()
