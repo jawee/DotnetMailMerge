@@ -1,10 +1,8 @@
 ﻿using NUnit.Framework;
 using DotnetMailMerge.Exceptions;
 using System;
-using DotnetMailMerge.Templating;
 using System.Collections.Generic;
 using System.Text.Json;
-using DotnetMailMerge;
 using System.Text.Json.Nodes;
 
 namespace DotnetMailMerge.Tests;
@@ -22,7 +20,13 @@ public class MailMergeTests
         Dictionary<string, object> obj = new()
         {
             {
-                 "items", new object[] { new { show = true, A = 1 }, new { show = false, A = 2 } } 
+                 "listOfObjects", new object[] { new { show = true, A = 1 }, new { show = false, A = 2 } } 
+            },
+            {
+                "listOfInts", new int[] { 1, 2, 3}
+            },
+            {
+                "listOfStrings", new string[] {"A", "B", "C"}
             },
             {
                 "A", "B"
@@ -37,6 +41,7 @@ public class MailMergeTests
         //var jObj = obj as JsonObject;
         var jNode = JsonNode.Parse(jsonString);
         var jObj = JsonNode.Parse(jsonString).AsObject();
+        var list = jObj["listOfInts"];
     }
 
     [Test]
