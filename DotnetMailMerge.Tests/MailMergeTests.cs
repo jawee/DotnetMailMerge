@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace DotnetMailMerge.Tests;
 
-public class MailMergeTestsV2
+public class MailMergeTests
 {
     [SetUp]
     public void Setup()
