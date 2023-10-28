@@ -134,10 +134,16 @@ public class MailMergeV2
     private static bool EvaluateCondition(JsonNode condition)
     {
         var val = condition.AsValue();
-        if (val.TryGetValue<bool>(out var res))
+        if (val.TryGetValue<bool>(out var boolRes))
         {
-            return res;
+            return boolRes;
         }
+
+        if (val.TryGetValue<string>(out var stringRes))
+        {
+            return !string.IsNullOrEmpty(stringRes);
+        }
+
         throw new ConditionException($"Couldn't get bool from {condition.GetPath()}");
     }
 

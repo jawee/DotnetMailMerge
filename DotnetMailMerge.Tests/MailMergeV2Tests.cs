@@ -115,78 +115,56 @@ public class MailMergeTestsV2
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    // [Test]
-    // public void If_JsonElement_ObjectProperty_ConditionFalse()
-    // {
-    //     var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if someobj.show}}<p>Extra</p>{{/if}}</body></html>"; 
-    //     var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
+    [Test]
+    public void If_ObjectProperty_ConditionFalse()
+    {
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if someobj.show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
 
-    //     var showJson = @"
-    //         {
-    //         ""show"": false
-    //         }";
+        var showJson = @"
+            {
+            ""show"": false
+            }";
 
-    //     var showObj = JsonSerializer.Deserialize<JsonElement>(showJson);
-    //     var sut = new MailMergeV2(template);
-    //     var result = sut.Render(new() {
-    //         { "title", "Title" },
-    //         { "someobj", showObj },
-    //      });
+        var showObj = JsonSerializer.Deserialize<JsonNode>(showJson);
+        var sut = new MailMergeV2(template);
+        var result = sut.Render(new() {
+            { "title", "Title" },
+            { "someobj", showObj },
+         });
 
-    //     Assert.That(result.Match(success => success, err => err.ToString()), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
-    // [Test]
-    // public void If_JsonElement_ObjectProperty_ConditionTrue()
-    // {
-    //     var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if someobj.show}}<p>Extra</p>{{/if}}</body></html>";
-    //     var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
+    [Test]
+    public void If_StringConditionWithValue_EvaluatesAsTrue()
+    { 
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
 
-    //     var showJson = @"
-    //         {
-    //         ""show"": true
-    //         }";
+        var sut = new MailMergeV2(template);
+        var result = sut.Render(new() { 
+            { "title", "Title" },
+            { "show", "a" }
+         });
 
-    //     var showObj = JsonSerializer.Deserialize<JsonElement>(showJson);
-    //     var sut = new MailMergeV2(template);
-    //     var result = sut.Render(new() {
-    //         { "title", "Title" },
-    //         { "someobj", showObj },
-    //      });
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
-    //     Assert.That(result.Match(success => success, err => err.ToString()), Is.EqualTo(expected));
-    // }
+    [Test]
+    public void If_EmptyStringCondition_EvaluatesAsFalse()
+    { 
+        var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
+        var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
 
+        var sut = new MailMergeV2(template);
+        var result = sut.Render(new() { 
+            { "title", "Title" },
+            { "show", "" }
+         });
 
-    // [Test]
-    // public void If_EmptyStringCondition_EvaluatesAsFalse()
-    // { 
-    //     var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
-    //     var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p></body></html>";
-
-    //     var sut = new MailMergeV2(template);
-    //     var result = sut.Render(new() { 
-    //         { "title", "Title" },
-    //         { "show", "" }
-    //      });
-
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
-
-    // [Test]
-    // public void If_StringConditionWithValue_EvaluatesAsTrue()
-    // { 
-    //     var template = @"<html><body><h1>{{title}}</h1><p>Lorem ipsum</p>{{#if show}}<p>Extra</p>{{/if}}</body></html>"; 
-    //     var expected = @"<html><body><h1>Title</h1><p>Lorem ipsum</p><p>Extra</p></body></html>";
-
-    //     var sut = new MailMergeV2(template);
-    //     var result = sut.Render(new() { 
-    //         { "title", "Title" },
-    //         { "show", "a" }
-    //      });
-
-    //     Assert.That(result.Match(success => success, _ => ""), Is.EqualTo(expected));
-    // }
+        Assert.That(result, Is.EqualTo(expected));
+    }
 
     // [Test]
     // public void If_Nested()
