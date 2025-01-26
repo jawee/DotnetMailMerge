@@ -20,7 +20,7 @@ public class MailMerge
         var parseResult = _parser.Parse();
         if (parseResult.IsError)
         {
-            throw new Exception("Render failed");
+            throw new MailMergeFailedException("Render failed");
         }
         var ast = parseResult.GetValue();
 
@@ -225,7 +225,7 @@ public class MailMerge
             throw new MissingParameterException("Missing node in GetObjectParameter for loop");
         }
 
-        if (key.StartsWith("this."))
+        if (key.StartsWith("this.", StringComparison.InvariantCultureIgnoreCase))
         {
             key = key.Replace("this.", "");
         }
@@ -260,7 +260,7 @@ public class MailMerge
 
         var res = b.Condition switch
         {
-            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.") => GetObjectParameter(a, node),
+            var a when !_parameters.ContainsKey(a) && b.Condition.StartsWith("this.", StringComparison.InvariantCultureIgnoreCase) => GetObjectParameter(a, node),
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
             _ => null,
@@ -340,7 +340,7 @@ public class MailMerge
         var couldParse = node.AsValue().TryGetValue<string>(out var content);
         if (!couldParse || content is null)
         {
-            throw new Exception("Couldn't get content for Markdown");
+            throw new MailMergeFailedException("Couldn't get content for Markdown");
         }
         var lexer = new Markdown.Lexer(content);
         var parser = new Markdown.Parser(lexer);

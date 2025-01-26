@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using DotnetMailMerge.Markdown;
 using NUnit.Framework;
 
@@ -21,13 +22,13 @@ public class MarkdownParserTests
         var ast = GetAst(input);
         if (ast.Blocks.Count != 3)
         { 
-            Assert.Fail(string.Format("Expected '3' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '3' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var block = ast.Blocks[0] as HeadingBlock;
         if (block is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
         }
         Assert.That(block, Is.Not.Null);
         Assert.Multiple(() =>
@@ -39,7 +40,7 @@ public class MarkdownParserTests
         var itemBlock = ast.Blocks[1] as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
         Assert.That(itemBlock, Is.Not.Null);
         Assert.That(itemBlock.Text, Is.EqualTo("A"));
@@ -47,7 +48,7 @@ public class MarkdownParserTests
         itemBlock = ast.Blocks[2] as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
         Assert.That(itemBlock, Is.Not.Null);
         Assert.That(itemBlock.Text, Is.EqualTo("B"));
@@ -61,13 +62,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 2)
         {
-            Assert.Fail(string.Format("Expected '2' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '2' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var itemBlock = ast.Blocks.First() as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(itemBlock, Is.Not.Null);
@@ -76,7 +77,7 @@ public class MarkdownParserTests
         itemBlock = ast.Blocks.Last() as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.Last().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.Last().GetType()));
         }
 
         Assert.That(itemBlock, Is.Not.Null);
@@ -92,13 +93,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var itemBlock = ast.Blocks.First() as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(itemBlock, Is.Not.Null);
@@ -113,13 +114,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var itemBlock = ast.Blocks.First() as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(itemBlock, Is.Not.Null);
@@ -133,13 +134,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 2)
         {
-            Assert.Fail(string.Format("Expected '2' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '2' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var itemBlock = ast.Blocks.First() as ItemBlock;
         if (itemBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ItemBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(itemBlock, Is.Not.Null);
@@ -148,7 +149,7 @@ public class MarkdownParserTests
         var paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType()));
         }
         Assert.That(paragraphBlock, Is.Not.Null);
         Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum."));
@@ -162,13 +163,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 2)
         {
-            Assert.Fail(string.Format("Expected '2' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '2' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var headingBlock = ast.Blocks.First() as HeadingBlock;
         if (headingBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(headingBlock, Is.Not.Null);
@@ -180,7 +181,7 @@ public class MarkdownParserTests
         var paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.Last().GetType()));
         }
         Assert.That(paragraphBlock, Is.Not.Null);
         Assert.That(paragraphBlock.Text, Is.EqualTo("Lorem ipsum dolor sit amet."));
@@ -194,13 +195,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(paragraphBlock, Is.Not.Null);
@@ -215,13 +216,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(paragraphBlock, Is.Not.Null);
@@ -236,13 +237,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 2)
         {
-            Assert.Fail(string.Format("Expected '2' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '2' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var paragraphBlock = ast.Blocks.First() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(paragraphBlock, Is.Not.Null);
@@ -251,7 +252,7 @@ public class MarkdownParserTests
         paragraphBlock = ast.Blocks.Last() as ParagraphBlock;
         if (paragraphBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(ParagraphBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(paragraphBlock, Is.Not.Null);
@@ -266,13 +267,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         { 
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var headingBlock = ast.Blocks.First() as HeadingBlock;
         if (headingBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(headingBlock, Is.Not.Null);
@@ -291,13 +292,13 @@ public class MarkdownParserTests
 
         if (ast.Blocks.Count != 1)
         { 
-            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var headingBlock = ast.Blocks.First() as HeadingBlock;
         if (headingBlock is null)
         {
-            Assert.Fail(string.Format("Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
+            Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '{0}', got '{1}'", nameof(HeadingBlock), ast.Blocks.First().GetType()));
         }
 
         Assert.That(headingBlock, Is.Not.Null);

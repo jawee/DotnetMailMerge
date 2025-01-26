@@ -48,7 +48,7 @@ public class Parser
             TokenType.Start => ParseLogicBlock(),
             TokenType.StartMd => ParseMdReplaceBlock(),
             TokenType.Character => ParseTextBlock(),
-            _ => throw new Exception($"ParseBlock _ matched. {_curToken.TokenType} {_curToken.Literal}"),
+            _ => throw new TemplatingException($"ParseBlock _ matched. {_curToken.TokenType} {_curToken.Literal}"),
         };
     }
 
@@ -75,7 +75,7 @@ public class Parser
             var block = blockResult.Match(success => success, _ => null!);
             if (block is null)
             {
-                throw new Exception("Exception in ParseConsequence");
+                throw new TemplatingException("Exception in ParseConsequence");
             }
             blocks.Add(block);
         }
@@ -149,7 +149,7 @@ public class Parser
 
             if (_curToken.TokenType != TokenType.Start)
             {
-                return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
+                return new TemplatingException($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
             }
 
             NextToken();
@@ -162,7 +162,7 @@ public class Parser
                 alternative = nextConditional switch
                 {
                     "else" => ParseConsequence(),
-                    _ => throw new Exception($"'{nextConditional}'"),
+                    _ => throw new TemplatingException($"'{nextConditional}'"),
                 };
             }
 
@@ -179,7 +179,7 @@ public class Parser
 
             if (_curToken.TokenType != TokenType.Start)
             {
-                return new Exception($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
+                return new TemplatingException($"Not sure this should happen. {_curToken.TokenType} {_curToken.Literal}");
             }
 
             NextToken();
@@ -187,7 +187,7 @@ public class Parser
             var nextConditional = ParseCondition();
             if (nextConditional is not "/each")
             {
-                throw new Exception($"Did not get /each. '{nextConditional}'");
+                throw new TemplatingException($"Did not get /each. '{nextConditional}'");
             }
 
             NextToken();

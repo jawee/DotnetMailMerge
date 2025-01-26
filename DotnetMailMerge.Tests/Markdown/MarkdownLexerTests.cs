@@ -1,4 +1,5 @@
-﻿using DotnetMailMerge.Markdown;
+﻿using System.Globalization;
+using DotnetMailMerge.Markdown;
 using NUnit.Framework;
 
 namespace DotnetMailMerge.Tests.Markdown;
@@ -73,8 +74,8 @@ public class MarkdownLexerTests
                 var token = lexer.GetNextToken();
                 Assert.Multiple(() =>
                 {
-                    Assert.That(token.Literal, Is.EqualTo(expected.Literal), string.Format("TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal));
-                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), string.Format("TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType));
+                    Assert.That(token.Literal, Is.EqualTo(expected.Literal), string.Format(CultureInfo.InvariantCulture, "TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal));
+                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), string.Format(CultureInfo.InvariantCulture, "TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType));
                 });
             }
         }
