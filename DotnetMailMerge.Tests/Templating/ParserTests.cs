@@ -89,7 +89,7 @@ public class ParserTests
     [Test]
     public void TestParseReplacementBlockNested()
     {
-        var expectedBlocks = new List<Block>
+        var expectedBlocks = new List<IBlock>
         {
             new TextBlock { Text = "<p>"},
             new ReplaceBlock { Property = "myproperty"},
@@ -112,7 +112,7 @@ public class ParserTests
     [Test]
     public void TestParseReplacementBlockTwoNested()
     {
-        var expectedBlocks = new List<Block>
+        var expectedBlocks = new List<IBlock>
         {
             new TextBlock { Text = "<p>"},
             new ReplaceBlock { Property = "prop1"},
@@ -272,7 +272,7 @@ public class ParserTests
     [Test]
     public void TestParseIfBlockWithTextAndReplaceBlockConsequence()
     {
-        var expectedConsequence = new List<Block>
+        var expectedConsequence = new List<IBlock>
         {
             new TextBlock { Text = "<p>"},
             new ReplaceBlock { Property = "p"},

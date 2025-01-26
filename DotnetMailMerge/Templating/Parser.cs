@@ -24,13 +24,13 @@ public class Parser
 
     public Result<Ast> Parse()
     {
-        var blocks = new List<Block>();
+        var blocks = new List<IBlock>();
 
         while (_curToken.TokenType != TokenType.EOF)
         {
             var blockResult = ParseBlock();
 
-            var block = blockResult.Match(success => success, _ => null);
+            var block = blockResult.Match(success => success, _ => null!);
             if (block is null)
             {
                 return blockResult.GetError();
@@ -41,7 +41,7 @@ public class Parser
         return new Ast { Blocks = blocks };
     }
 
-    private Result<Block> ParseBlock() 
+    private Result<IBlock> ParseBlock()
     {
         return _curToken.TokenType switch
         {
@@ -49,10 +49,10 @@ public class Parser
             TokenType.StartMd => ParseMdReplaceBlock(),
             TokenType.Character => ParseTextBlock(),
             _ => throw new Exception($"ParseBlock _ matched. {_curToken.TokenType} {_curToken.Literal}"),
-        } ;
+        };
     }
 
-    private Result<Block> ParseTextBlock()
+    private Result<IBlock> ParseTextBlock()
     {
         var res = "";
         while (_curToken.TokenType is TokenType.Character)
@@ -63,16 +63,16 @@ public class Parser
         return new TextBlock { Text = res };
     }
 
-    private List<Block> ParseConsequence()
+    private List<IBlock> ParseConsequence()
     {
         NextToken();
-        var blocks = new List<Block>();
+        var blocks = new List<IBlock>();
 
         while (ConsequenceShouldReadNext())
         {
             var blockResult = ParseBlock();
 
-            var block = blockResult.Match(success => success, _ => null);
+            var block = blockResult.Match(success => success, _ => null!);
             if (block is null)
             {
                 throw new Exception("Exception in ParseConsequence");
@@ -100,7 +100,7 @@ public class Parser
             while (peekToken.TokenType is TokenType.Character && peekToken.Literal != " ")
             {
                 word += peekToken.Literal;
-                peekToken = _lexer.PeekNthToken(_lexer.GetReadPos()+(c));
+                peekToken = _lexer.PeekNthToken(_lexer.GetReadPos() + c);
                 c++;
             }
 
@@ -113,7 +113,7 @@ public class Parser
         return true;
     }
 
-    private string ParseConditional() 
+    private string ParseConditional()
     {
         NextToken(); // #
         var conditional = "";
@@ -126,16 +126,16 @@ public class Parser
         return conditional.Trim();
     }
 
-    private static readonly string[] _allowedConditionals = new[] { "each", "if" };
+    private static readonly string[] _allowedConditionals = ["each", "if"];
 
-    private Result<Block> ParseSomething()
+    private Result<IBlock> ParseSomething()
     {
         //if asdf }} consequence {{/if}}
         //each asdf}} template {{/each}}
         var conditional = ParseConditional();
 
         if (!_allowedConditionals.Contains(conditional))
-        { 
+        {
             return new UnknownConditionalException($"Conditional was not {string.Join(",", _allowedConditionals)}, was '{conditional}'");
         }
 
@@ -156,7 +156,7 @@ public class Parser
             //TODO: Check if it's actual end or {{else}} {{elseif}}
             var nextConditional = ParseCondition();
 
-            var alternative = new List<Block>();
+            var alternative = new List<IBlock>();
             if (nextConditional is not "/if")
             {
                 alternative = nextConditional switch
@@ -193,7 +193,7 @@ public class Parser
             NextToken();
 
             //return new LoopBlock { Condition = condition.Trim(), Consequence = consequence, Alternative = alternative };
-            return new LoopBlock { List = condition, Body = consequence};
+            return new LoopBlock { List = condition, Body = consequence };
         }
 
         return new UnknownConditionalException($"Conditional was not {string.Join(",", _allowedConditionals)}, was '{conditional}'");
@@ -211,7 +211,7 @@ public class Parser
         return condition;
     }
 
-    private Result<Block> ParseReplacement()
+    private Result<IBlock> ParseReplacement()
     {
         var res = "";
 
@@ -226,10 +226,10 @@ public class Parser
         return new ReplaceBlock() { Property = res.Trim() };
     }
 
-    private Result<Block> ParseLogicBlock()
+    private Result<IBlock> ParseLogicBlock()
     {
         NextToken();
-        Result<Block> result = _curToken.Literal switch
+        Result<IBlock> result = _curToken.Literal switch
         {
             "#" => ParseSomething(),
             _ => ParseReplacement()
@@ -238,7 +238,7 @@ public class Parser
         return result;
     }
 
-    private Result<Block> ParseMdReplaceBlock()
+    private Result<IBlock> ParseMdReplaceBlock()
     {
         var res = "";
 
@@ -254,16 +254,16 @@ public class Parser
     }
 }
 
-public class Ast 
+public class Ast
 {
-    public List<Block> Blocks { get; set; } = default!;
+    public List<IBlock> Blocks { get; set; } = default!;
 }
 
-public interface Block
-{ 
+public interface IBlock
+{
 }
 
-public class TextBlock : Block
+public class TextBlock : IBlock
 {
     public string Text { get; set; } = default!;
 
@@ -279,18 +279,18 @@ public class TextBlock : Block
     }
 }
 
-public class IfBlock : Block 
+public class IfBlock : IBlock
 {
     public string Condition { get; set; } = default!;
-    public List<Block> Consequence { get; set; } = default!;
-    public List<Block> Alternative { get; set; } = default!;
+    public List<IBlock> Consequence { get; set; } = default!;
+    public List<IBlock> Alternative { get; set; } = default!;
 
     public override bool Equals(object? obj)
     {
         return obj is IfBlock block &&
                Condition == block.Condition &&
-               EqualityComparer<List<Block>>.Default.Equals(Consequence, block.Consequence) &&
-               EqualityComparer<List<Block>>.Default.Equals(Alternative, block.Alternative);
+               EqualityComparer<List<IBlock>>.Default.Equals(Consequence, block.Consequence) &&
+               EqualityComparer<List<IBlock>>.Default.Equals(Alternative, block.Alternative);
     }
 
     public override int GetHashCode()
@@ -299,13 +299,13 @@ public class IfBlock : Block
     }
 }
 
-public class LoopBlock : Block
-{ 
+public class LoopBlock : IBlock
+{
     public string List { get; set; } = default!;
-    public List<Block> Body { get; set; } = default!;
+    public List<IBlock> Body { get; set; } = default!;
 }
 
-public class MdReplaceBlock : Block
+public class MdReplaceBlock : IBlock
 {
     public string Content { get; set; } = default!;
 
@@ -320,7 +320,8 @@ public class MdReplaceBlock : Block
         return HashCode.Combine(Content);
     }
 }
-public class ReplaceBlock : Block
+
+public class ReplaceBlock : IBlock
 {
     public string Property { get; set; } = default!;
 

@@ -43,7 +43,7 @@ public class MailMerge
         return res;
     }
 
-    private static string HandleTextBlock(Block block)
+    private static string HandleTextBlock(IBlock block)
     {
         if (block is not TextBlock b)
         {
@@ -52,7 +52,7 @@ public class MailMerge
         return b.Text;
     }
 
-    private string HandleIfBlock(Block block)
+    private string HandleIfBlock(IBlock block)
     {
         if (block is not IfBlock b)
         {
@@ -147,7 +147,7 @@ public class MailMerge
     }
 
 
-    private string HandleLoopBlock(Block block)
+    private string HandleLoopBlock(IBlock block)
     {
         if (block is not LoopBlock b)
         {
@@ -183,7 +183,7 @@ public class MailMerge
         throw new MissingParameterException($"list is null. {_parameters[b.List]}");
     }
 
-    private string HandleReplaceBlockLoop(Block block, JsonNode? node)
+    private string HandleReplaceBlockLoop(IBlock block, JsonNode? node)
     {
         if (block is not ReplaceBlock b)
         {
@@ -251,7 +251,7 @@ public class MailMerge
         }
         throw new MissingParameterException($"Parameters doesn't contain {key}");
     }
-    private string HandleIfBlockLoop(Block block, JsonNode? node)
+    private string HandleIfBlockLoop(IBlock block, JsonNode? node)
     {
         if (block is not IfBlock b)
         {
@@ -311,7 +311,7 @@ public class MailMerge
         return consRes;
     }
 
-    private string HandleMdReplaceBlock(Block block)
+    private string HandleMdReplaceBlock(IBlock block)
     {
         if (block is not MdReplaceBlock b)
         {
@@ -347,7 +347,7 @@ public class MailMerge
         var renderer = new Markdown.Renderer(parser);
         return renderer.Render();
     }
-    private string HandleReplaceBlock(Block block)
+    private string HandleReplaceBlock(IBlock block)
     {
         if (block is not ReplaceBlock b)
         {
