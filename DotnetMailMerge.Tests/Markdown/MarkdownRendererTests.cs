@@ -23,7 +23,7 @@ public class MarkdownRendererTests
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    private Renderer GetRenderer(string input)
+    private static Renderer GetRenderer(string input)
     {
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);

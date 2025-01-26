@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using DotnetMailMerge.Exceptions;
 using DotnetMailMerge.Templating;
 
@@ -7,7 +6,7 @@ namespace DotnetMailMerge;
 
 public class MailMerge
 {
-    private JsonObject _parameters = new();
+    private JsonObject _parameters = [];
     private readonly Parser _parser;
 
     public MailMerge(string template)
@@ -219,7 +218,7 @@ public class MailMerge
 
     }
 
-    private JsonNode? GetObjectParameter(string key, JsonNode? node)
+    private static JsonNode? GetObjectParameter(string key, JsonNode? node)
     {
         if (node is null)
         {
@@ -234,7 +233,7 @@ public class MailMerge
         var listOfParams = key.Split(".");
         if (node is JsonObject nodeObj && nodeObj.ContainsKey(listOfParams.First()))
         {
-            if (listOfParams.Count() is 1)
+            if (listOfParams.Length is 1)
             {
                 return nodeObj[listOfParams.First()];
             }

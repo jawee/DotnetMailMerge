@@ -147,7 +147,7 @@ public class HeadingBlock : IBlock
 
 public class ParagraphBlock : IBlock
 {
-	public string Text { get; set; }
+	public required string Text { get; set; }
 }
 
 public class ItemBlock : IBlock
