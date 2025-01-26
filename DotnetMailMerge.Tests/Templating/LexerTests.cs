@@ -1,7 +1,7 @@
 ﻿using DotnetMailMerge.Templating;
 using NUnit.Framework;
 
-namespace DotnetMailMerge.Tests;
+namespace DotnetMailMerge.Tests.Templating;
 
 [TestFixture]
 public class LexerTests
@@ -17,19 +17,19 @@ public class LexerTests
     public void TestLexer() 
     {
         var testCases = new[] {
-            new TestCase("{", new[] { CreateToken(TokenType.Character, "{") }),
-            new TestCase("}", new[] { CreateToken(TokenType.Character, "}") }),
-            new TestCase("{{", new[] { CreateToken(TokenType.Start), CreateToken(TokenType.EOF)}),
-            new TestCase("}}", new[] { CreateToken(TokenType.End), CreateToken(TokenType.EOF)}),
-            new TestCase("{{{", new [] { CreateToken(TokenType.StartMd)}),
-            new TestCase("}}}", new [] { CreateToken(TokenType.EndMd)}),
-            new TestCase("{{p}}", new[] {
+            new TestCase("{", [CreateToken(TokenType.Character, "{")]),
+            new TestCase("}", [CreateToken(TokenType.Character, "}")]),
+            new TestCase("{{", [CreateToken(TokenType.Start), CreateToken(TokenType.EOF)]),
+            new TestCase("}}", [CreateToken(TokenType.End), CreateToken(TokenType.EOF)]),
+            new TestCase("{{{", [CreateToken(TokenType.StartMd)]),
+            new TestCase("}}}", [CreateToken(TokenType.EndMd)]),
+            new TestCase("{{p}}", [
                 CreateToken(TokenType.Start),
                 CreateToken(TokenType.Character, "p"),
                 CreateToken(TokenType.End),
                 CreateToken(TokenType.EOF),
-            }),
-            new TestCase("{{#if p}}", new[] {
+            ]),
+            new TestCase("{{#if p}}", [
                 CreateToken(TokenType.Start),
                 CreateToken(TokenType.Character, "#"),
                 CreateToken(TokenType.Character, "i"),
@@ -38,8 +38,8 @@ public class LexerTests
                 CreateToken(TokenType.Character, "p"),
                 CreateToken(TokenType.End),
                 CreateToken(TokenType.EOF),
-            }),
-            new TestCase("<p>{{ p }}</p>", new[] {
+            ]),
+            new TestCase("<p>{{ p }}</p>", [
                 CreateToken(TokenType.Character, "<"),
                 CreateToken(TokenType.Character, "p"),
                 CreateToken(TokenType.Character, ">"),
@@ -52,14 +52,14 @@ public class LexerTests
                 CreateToken(TokenType.Character, "/"),
                 CreateToken(TokenType.Character, "p"),
                 CreateToken(TokenType.Character, ">"),
-            }),
-            new TestCase("{{{ a }}}", new[] {
+            ]),
+            new TestCase("{{{ a }}}", [
                 CreateToken(TokenType.StartMd),
                 CreateToken(TokenType.Character, " "),
                 CreateToken(TokenType.Character, "a"),
                 CreateToken(TokenType.Character, " "),
                 CreateToken(TokenType.EndMd),
-            }),
+            ]),
         };
 
         foreach (var testCase in testCases)
@@ -70,8 +70,8 @@ public class LexerTests
                 var token = lexer.GetNextToken();
                 Assert.Multiple(() =>
                 {
-                    Assert.That(token.Literal, Is.EqualTo(expected.Literal),"TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal);
-                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), "TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType);
+                    Assert.That(token.Literal, Is.EqualTo(expected.Literal),string.Format("TestCase: '{0}'. Expected '{1}', got '{2}'", testCase.Input, expected.Literal, token.Literal));
+                    Assert.That(token.TokenType, Is.EqualTo(expected.TokenType), string.Format("TestCase: '{0}'. Expected '{1}, got '{2}'", testCase.Input, expected.TokenType, token.TokenType));
                 });
             }
         }

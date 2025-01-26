@@ -4,7 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DotnetMailMerge.Tests;
+namespace DotnetMailMerge.Tests.Templating;
 
 [TestFixture]
 public class ParserTests
@@ -17,13 +17,13 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var textBlock = ast.Blocks.First() as TextBlock;
         if (textBlock is null)
         { 
-            Assert.Fail("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+            Assert.Fail(string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         }
 
         Assert.That(textBlock, Is.Not.Null);
@@ -39,13 +39,13 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var replaceBlock = ast.Blocks.First() as ReplaceBlock;
         if (replaceBlock is null)
         { 
-            Assert.Fail("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+            Assert.Fail(string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         }
 
         Assert.That(replaceBlock, Is.Not.Null);
@@ -60,12 +60,12 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var replaceBlock = ast.Blocks.First() as MdReplaceBlock;
 
-        Assert.That(replaceBlock, Is.Not.Null, "Expected 'MdReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock, Is.Not.Null, string.Format("Expected 'MdReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(replaceBlock.Content, Is.EqualTo("lorem"));
     }
 
@@ -77,12 +77,12 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var replaceBlock = ast.Blocks.First() as ReplaceBlock;
 
-        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(replaceBlock.Property, Is.EqualTo("myproperty"));
     }
 
@@ -100,7 +100,7 @@ public class ParserTests
 
         if (ast.Blocks.Count != 3)
         {
-            Assert.Fail("Expected '3' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '3' Block, got '{0}'", ast.Blocks.Count));
         }
 
         for (var i = 0; i < expectedBlocks.Count; ++i)
@@ -124,7 +124,7 @@ public class ParserTests
 
         if (ast.Blocks.Count != 4)
         {
-            Assert.Fail("Expected '4' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '4' Block, got '{0}'", ast.Blocks.Count));
         }
 
         for (var i = 0; i < expectedBlocks.Count; ++i)
@@ -140,14 +140,18 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(0));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(0));
+        });
+
     }
 
     [Test]
@@ -158,16 +162,20 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        });
+
         var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
     }
 
@@ -179,16 +187,20 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        });
+
         var consequenceBlock = ifBlock.Consequence.First() as ReplaceBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(consequenceBlock.Property, Is.EqualTo("replace"));
     }
 
@@ -200,23 +212,27 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+        });
+
 
         var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(consequenceBlock.Text, Is.EqualTo("<p>"));
         var secondConsequenceBlock = ifBlock.Consequence[1] as ReplaceBlock;
-        Assert.That(secondConsequenceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(secondConsequenceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(secondConsequenceBlock.Property, Is.EqualTo("replace"));
         consequenceBlock = ifBlock.Consequence.Last() as TextBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(consequenceBlock.Text, Is.EqualTo("</p>"));
     }
 
@@ -228,20 +244,28 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        });
+
         var consequenceBlock = ifBlock.Consequence.First() as IfBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ifBlock.Consequence.First().GetType());
-        Assert.That(consequenceBlock.Condition, Is.EqualTo("otherbool"));
-        Assert.That(consequenceBlock.Consequence, Has.Count.EqualTo(1));
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ifBlock.Consequence.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(consequenceBlock.Condition, Is.EqualTo("otherbool"));
+            Assert.That(consequenceBlock.Consequence, Has.Count.EqualTo(1));
+        });
+
         var consequence = consequenceBlock.Consequence.First() as TextBlock;
-        Assert.That(consequence, Is.Not.Null, "Expected 'TextBlock', got '{0}'", consequenceBlock.Consequence.First().GetType());
+        Assert.That(consequence, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", consequenceBlock.Consequence.First().GetType()));
         Assert.That(consequence.Text, Is.EqualTo("Lorem ipsum"));
     }
 
@@ -259,14 +283,18 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(3));
+        });
+
 
         for (var i = 0; i < expectedConsequence.Count; ++i)
         {
@@ -282,8 +310,12 @@ public class ParserTests
 
         var parseResult = parser.Parse();
 
-        Assert.That(parseResult.IsError, Is.True);
-        Assert.That(parseResult.GetError(), Is.InstanceOf<UnknownConditionalException>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(parseResult.IsError, Is.True);
+            Assert.That(parseResult.GetError(), Is.InstanceOf<UnknownConditionalException>());
+        });
+
     }
 
     [Test]
@@ -294,21 +326,28 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var ifBlock = ast.Blocks.First() as IfBlock;
 
-        Assert.That(ifBlock, Is.Not.Null, "Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
-        Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
-        var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
-        Assert.That(consequenceBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+        Assert.That(ifBlock, Is.Not.Null, string.Format("Expected 'IfBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ifBlock.Condition, Is.EqualTo("somebool"));
+            Assert.That(ifBlock.Consequence, Has.Count.EqualTo(1));
+        });
 
-        Assert.That(ifBlock.Alternative, Has.Count.EqualTo(1));
+        var consequenceBlock = ifBlock.Consequence.First() as TextBlock;
+        Assert.That(consequenceBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(consequenceBlock.Text, Is.EqualTo("Lorem ipsum"));
+            Assert.That(ifBlock.Alternative, Has.Count.EqualTo(1));
+        });
+
         var alternativeBlock = ifBlock.Alternative.First() as TextBlock;
-        Assert.That(alternativeBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(alternativeBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(alternativeBlock.Text, Is.EqualTo("Ipsum lorem"));
     }
 
@@ -320,17 +359,21 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var loopBlock = ast.Blocks.First() as LoopBlock;
 
-        Assert.That(loopBlock, Is.Not.Null, "Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(loopBlock.List, Is.EqualTo("items"));
-        Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+        Assert.That(loopBlock, Is.Not.Null, string.Format("Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(loopBlock.List, Is.EqualTo("items"));
+            Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+        });
+
 
         var templateBlock = loopBlock.Body.First() as TextBlock;
-        Assert.That(templateBlock, Is.Not.Null, "Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(templateBlock, Is.Not.Null, string.Format("Expected 'TextBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(templateBlock.Text, Is.EqualTo("<p>Item</p>"));
     }
 
@@ -342,11 +385,11 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var replaceBlock = ast.Blocks.First() as ReplaceBlock;
-        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(replaceBlock.Property, Is.EqualTo("this.A"));
     }
 
@@ -358,17 +401,21 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var loopBlock = ast.Blocks.First() as LoopBlock;
 
-        Assert.That(loopBlock, Is.Not.Null, "Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType());
-        Assert.That(loopBlock.List, Is.EqualTo("items"));
-        Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+        Assert.That(loopBlock, Is.Not.Null, string.Format("Expected 'LoopBlock', got '{0}'", ast.Blocks.First().GetType()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(loopBlock.List, Is.EqualTo("items"));
+            Assert.That(loopBlock.Body, Has.Count.EqualTo(1));
+        });
+
 
         var replaceBlock = loopBlock.Body.First() as ReplaceBlock;
-        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(replaceBlock.Property, Is.EqualTo("this.A"));
     }
 
@@ -380,12 +427,12 @@ public class ParserTests
 
         if (ast.Blocks.Count != 1)
         {
-            Assert.Fail("Expected '1' Block, got '{0}'", ast.Blocks.Count);
+            Assert.Fail(string.Format("Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
         var replaceBlock = ast.Blocks.First() as ReplaceBlock;
 
-        Assert.That(replaceBlock, Is.Not.Null, "Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType());
+        Assert.That(replaceBlock, Is.Not.Null, string.Format("Expected 'ReplaceBlock', got '{0}'", ast.Blocks.First().GetType()));
         Assert.That(replaceBlock.Property, Is.EqualTo("someobj.someprop"));
     }
 
