@@ -64,12 +64,7 @@ public class MailMerge
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Condition.Contains('.') => GetObjectParameter(a),
             _ => null,
-        };
-
-        if (res is null)
-        {
-            throw new MissingParameterException($"Parameters doesn't contain {b.Condition}");
-        }
+        } ?? throw new MissingParameterException($"Parameters doesn't contain {b.Condition}");
 
         var condition = EvaluateCondition(res);
 
@@ -323,12 +318,7 @@ public class MailMerge
             var a when _parameters.ContainsKey(a) => _parameters[a],
             var a when !_parameters.ContainsKey(a) && b.Content.Contains('.') => GetObjectParameter(a),
             _ => null,
-        };
-
-        if (content is null)
-        {
-            throw new MissingParameterException($"Parameters doesn't contain {b.Content}");
-        }
+        } ?? throw new MissingParameterException($"Parameters doesn't contain {b.Content}"); 
 
         var res = GetHtmlFromMarkdown(content);
 

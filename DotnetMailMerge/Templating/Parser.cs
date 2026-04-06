@@ -72,11 +72,8 @@ public class Parser
         {
             var blockResult = ParseBlock();
 
-            var block = blockResult.Match(success => success, _ => null!);
-            if (block is null)
-            {
-                throw new TemplatingException("Exception in ParseConsequence");
-            }
+            var block = blockResult.Match(success => success, _ => null!) ?? throw new TemplatingException("Exception in ParseConsequence");
+
             blocks.Add(block);
         }
 

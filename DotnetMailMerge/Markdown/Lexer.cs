@@ -1,5 +1,4 @@
-﻿using System.Linq;
-
+﻿
 namespace DotnetMailMerge.Markdown;
 
 public class Lexer
@@ -73,12 +72,12 @@ public class Lexer
 
 	private bool IsItem(char? a, char? prev, char? next)
 	{
-		return IsSpecial(a, prev, next, '*', new char?[] { '\n', null }, new char?[] { ' ' });
+		return IsSpecial(a, prev, next, '*', ['\n', null], [' ']);
     }
 
 	private bool IsHeading(char? a, char? prev, char? next)
 	{
-		return IsSpecial(a, prev, next, '#', new char?[] { '#', '\n', null}, new char?[] { '#', ' ' });
+		return IsSpecial(a, prev, next, '#', ['#', '\n', null], ['#', ' ']);
     }
 
 	private bool IsSpecial(char? a, char? prev, char? next, char? expected, char?[] allowedPrev, char?[] allowedNext)
