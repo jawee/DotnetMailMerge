@@ -8,12 +8,11 @@ namespace DotnetMailMerge.Tests.Markdown;
 [TestFixture]
 public class MarkdownParserTests
 {
-
     [Test]
     public void TestParseHeadingItems()
     {
         var input = "# Heading\n* A\n* B";
-        var expected = new IBlock[] { 
+        var expected = new IBlock[] {
             new HeadingBlock(1, "Heading"),
             new ItemBlock("A"),
             new ItemBlock("B"),
@@ -21,7 +20,7 @@ public class MarkdownParserTests
 
         var ast = GetAst(input);
         if (ast.Blocks.Count != 3)
-        { 
+        {
             Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '3' Block, got '{0}'", ast.Blocks.Count));
         }
 
@@ -33,7 +32,7 @@ public class MarkdownParserTests
         Assert.That(block, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(block.Text, Is.EqualTo("Heading"));
+            Assert.That(block!.Text, Is.EqualTo("Heading"));
             Assert.That(block.Level, Is.EqualTo(1));
         });
 
@@ -56,7 +55,7 @@ public class MarkdownParserTests
 
     [Test]
     public void TestParseTwoItems()
-    { 
+    {
         var input = "* A\n* B";
         var ast = GetAst(input);
 
@@ -87,7 +86,7 @@ public class MarkdownParserTests
 
     [Test]
     public void TestParseItem()
-    { 
+    {
         var input = "* A";
         var ast = GetAst(input);
 
@@ -108,7 +107,7 @@ public class MarkdownParserTests
 
     [Test]
     public void TestParseItemWithLinebreak()
-    { 
+    {
         var input = "* A\nB";
         var ast = GetAst(input);
 
@@ -266,7 +265,7 @@ public class MarkdownParserTests
         var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
-        { 
+        {
             Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
@@ -291,7 +290,7 @@ public class MarkdownParserTests
         var ast = GetAst(input);
 
         if (ast.Blocks.Count != 1)
-        { 
+        {
             Assert.Fail(string.Format(CultureInfo.InvariantCulture, "Expected '1' Block, got '{0}'", ast.Blocks.Count));
         }
 
@@ -310,7 +309,7 @@ public class MarkdownParserTests
     }
 
     private static Ast GetAst(string input)
-    { 
+    {
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
         var parseResult = parser.Parse();
